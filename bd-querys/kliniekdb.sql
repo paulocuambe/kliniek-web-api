@@ -30,7 +30,7 @@ create table telefone(
 
 create table paciente(
 	pacienteid int references pessoa(pessoaid) primary key,
-	profissao varchar(30) unique not null,
+	profissao varchar(30) not null,
 	estadoActual varchar(40)
 );
 
