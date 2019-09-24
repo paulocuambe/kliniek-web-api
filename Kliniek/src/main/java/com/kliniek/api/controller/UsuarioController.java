@@ -3,11 +3,10 @@ package com.kliniek.api.controller;
 import com.kliniek.api.model.Usuario;
 import com.kliniek.api.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.List;
 
 @RestController
 public class UsuarioController {
@@ -16,12 +15,27 @@ public class UsuarioController {
     UsuarioRepository usuarioRepository;
 
     @PostMapping("/usuarios")
-    public void registar(@RequestBody Usuario usuario){
-        usuarioRepository.create(usuario);
+    public ResponseEntity<?> create(@RequestBody Usuario usuario) {
+        return new ResponseEntity<>(usuarioRepository.create(usuario), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/usuarios/{id}")
+    public ResponseEntity<?> update(@PathVariable long id, @RequestBody Usuario usuario) {
+        return new ResponseEntity<>(usuarioRepository.update(id, usuario), HttpStatus.OK);
     }
 
     @GetMapping("/usuarios")
-    public List<Usuario> getAllUsuarios(){
-        return usuarioRepository.findAll();
+    public ResponseEntity<?> findAll() {
+        return new ResponseEntity<>(usuarioRepository.findAll(), HttpStatus.OK);
+    }
+
+    @GetMapping("/usuarios/{id}")
+    public ResponseEntity<?> findUsuarioById(@PathVariable long id) {
+        return new ResponseEntity<>(usuarioRepository.findUsuarioById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/usuarios/username={username}")
+    public ResponseEntity<?> findUsuarioByUsername(@PathVariable String username) {
+        return new ResponseEntity<>(usuarioRepository.findUsuarioByUsername(username), HttpStatus.OK);
     }
 }

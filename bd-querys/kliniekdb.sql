@@ -4,7 +4,7 @@ create table usuario(
 	username varchar(30) unique not null,
 	senha varchar(100) not null,
 	estado varchar(30) Default 'activo',
-	dataCriacao Timestamp default CURRENT_DATE
+	dataCriacao Timestamp DEFAULT (current_timestamp AT TIME ZONE 'UTC')
 );
 
 create table pessoa (
@@ -19,7 +19,7 @@ create table pessoa (
 	sexo varchar(30),
 	endereco varchar(200),
 	contactoPrimario varchar(30) not null,
-	dataRegisto Timestamp not null default CURRENT_DATE
+	dataRegisto Timestamp DEFAULT (current_timestamp AT TIME ZONE 'UTC')
 );
 
 create table telefone(

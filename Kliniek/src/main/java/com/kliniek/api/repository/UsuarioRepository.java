@@ -19,6 +19,12 @@ public class UsuarioRepository {
         return jdbcTemplate.update(sql, usuario.getUsername(), usuario.getSenha(), usuario.getEstado());
     }
 
+
+    public int update(long id, Usuario usuario) {
+        String sql = "update usuario set username = ?, senha = ?, estado = ? where usuarioid = " + id;
+        return jdbcTemplate.update(sql, usuario.getUsername(), usuario.getSenha(), usuario.getEstado());
+    }
+
     public List<Usuario> findAll() {
         return jdbcTemplate.query(
                 "select * from usuario",
@@ -33,4 +39,31 @@ public class UsuarioRepository {
         );
     }
 
+    public Usuario findUsuarioById(long id) {
+        return jdbcTemplate.queryForObject(
+                "select * from usuario where usuarioid = ?", new Object[]{id},
+                (rs, rowNum) ->
+                        new Usuario(
+                                rs.getLong("usuarioid"),
+                                rs.getString("username"),
+                                rs.getString("senha"),
+                                rs.getString("estado"),
+                                rs.getTimestamp("dataCriacao")
+                        )
+        );
+    }
+
+    public Usuario findUsuarioByUsername(String username) {
+        return jdbcTemplate.queryForObject(
+                "select * from usuario where username = ?", new Object[]{username},
+                (rs, rowNum) ->
+                        new Usuario(
+                                rs.getLong("usuarioid"),
+                                rs.getString("username"),
+                                rs.getString("senha"),
+                                rs.getString("estado"),
+                                rs.getDate("dataCriacao")
+                        )
+        );
+    }
 }
