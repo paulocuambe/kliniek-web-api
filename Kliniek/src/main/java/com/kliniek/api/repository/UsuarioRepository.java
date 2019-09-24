@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 
 
@@ -16,7 +15,7 @@ public class UsuarioRepository {
 
 
     public int create(Usuario usuario) {
-        String sql = "insert into usuario (username, senha, estado, datacriacao) values (?, ?, ?, sysdate())";
+        String sql = "insert into usuario (username, senha, estado) values (?, ?, ?)";
         return jdbcTemplate.update(sql, usuario.getUsername(), usuario.getSenha(), usuario.getEstado());
     }
 
