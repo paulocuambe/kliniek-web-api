@@ -1,14 +1,9 @@
--- Criando as enums
-create type estado_usuario as enum ('activo', 'inactivo','bloqueado');
-create type sexo_pessoa as enum ('masculino', 'femenino');
-create type estado_paciente as enum ('bom', 'medio', 'grave', 'muito grave');
-
 -- Criando Tabelas
 create table usuario(
 	usuarioid serial primary key,
 	username varchar(30) unique not null,
 	senha varchar(100) not null,
-	estado estado_usuario Default 'activo',
+	estado varchar(30) Default 'activo',
 	dataCriacao Timestamp default CURRENT_DATE
 );
 
@@ -21,7 +16,7 @@ create table pessoa (
 	apelido varchar(30) not null,
 	email varchar(70) unique,
 	dataNascimento Date,
-	sexo sexo_pessoa,
+	sexo varchar(30),
 	endereco varchar(200),
 	contactoPrimario varchar(30) not null,
 	dataRegisto Timestamp not null default CURRENT_DATE
@@ -36,7 +31,7 @@ create table telefone(
 create table paciente(
 	pacienteid int references pessoa(pessoaid) primary key,
 	profissao varchar(30) unique not null,
-	estadoActual estado_paciente
+	estadoActual varchar(40)
 );
 
 create table recepcionista(
