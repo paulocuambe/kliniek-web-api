@@ -29,17 +29,17 @@ create table telefone(
 );
 
 create table paciente(
-	pacienteid int references pessoa(pessoaid) primary key,
+	pacienteid int references pessoa(pessoaid) primary key on delete cascade,
 	profissao varchar(30) not null,
 	estadoActual varchar(40)
 );
 
 create table recepcionista(
-	recepcionistaid int references pessoa(pessoaid) primary key
+	recepcionistaid int references pessoa(pessoaid) primary key on delete cascade
 );
 
 create table medico(
-	medicoid int references pessoa(pessoaid) primary key,
+	medicoid int references pessoa(pessoaid) primary key on delete cascade,
 	carteriraProfessional varchar(30) unique not null
 );
 
@@ -50,8 +50,8 @@ create table especialidadeMedica(
 );
 
 create table areaActuacao(
-	medicoid int references medico,
-	especialidadeid int references especialidadeMedica,
+	medicoid int references medico on delete cascade,
+	especialidadeid int references especialidadeMedica on delete cascade,
 	Primary Key (medicoid, especialidadeid)
 );
 
