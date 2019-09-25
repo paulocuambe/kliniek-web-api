@@ -1,6 +1,5 @@
 package com.kliniek.api.repository;
 
-import com.kliniek.api.model.Paciente;
 import com.kliniek.api.model.Pessoa;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,26 +10,43 @@ public class PessoaRepository {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    public int create(Pessoa pessoa){
+    public int create(Pessoa pessoa) {
         String sql = "INSERT INTO Pessoa " +
                 "(bi, nuit, primeironome, apelido, email, datanascimento, sexo, endereco, contactoprimario)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        return jdbcTemplate.update(sql,
-                pessoa.getBi(),
-                pessoa.getNuit(),
-                pessoa.getPrimeiroNome(),
-                pessoa.getApelido(),
-                pessoa.getEmail(),
-                pessoa.getDataNascimento(),
-                pessoa.getSexo(),
-                pessoa.getEndereco(),
-                pessoa.getContactoPrimario()
-        );
+        if (atributosUnicosNaoRepetidos(pessoa))
+            return executeUpdateQuery(sql, pessoa);
+        else
+            return 0;
     }
 
-    public int update(long id, Pessoa pessoa){
+    public int update(long id, Pessoa pessoa) {
         String sql = "UPDATE Pessoa SET bi = ?, nuit = ?, primeironome = ?, apelido = ?, email = ?, datanascimento = ?," +
                 " sexo = ?, endereco = ?, contactoprimario = ? where pacienteid = " + id;
+        if (atributosUnicosNaoRepetidos(pessoa))
+            return executeUpdateQuery(sql, pessoa);
+        else
+            return 0;
+    }
+
+    public Pessoa findPessoaByBI(String bi) {
+        String sql = "select * from pessoa where bi = ?";
+        return executeSingleObjectQuery(sql, bi);
+    }
+
+    public int countEmail(String email) {
+        return jdbcTemplate.queryForObject("select count(*) from pessoa where email = '" + email + "'", Integer.class);
+    }
+
+    public int countBi(String bi) {
+        return jdbcTemplate.queryForObject("select count(*) from pessoa where bi = '" + bi + "'", Integer.class);
+    }
+
+    public int countNuit(String nuit) {
+        return jdbcTemplate.queryForObject("select count(*) from pessoa where nuit = '" + nuit +"'", Integer.class);
+    }
+
+    private int executeUpdateQuery(String sql, Pessoa pessoa) {
         return jdbcTemplate.update(sql,
                 pessoa.getBi(),
                 pessoa.getNuit(),
@@ -44,9 +60,9 @@ public class PessoaRepository {
         );
     }
 
-    public Pessoa findPessoaByBI(String bi){
+    private Pessoa executeSingleObjectQuery(String sql, Object o) {
         return jdbcTemplate.queryForObject(
-                "select * from pessoa where bi = ?", new Object[]{bi},
+                sql, new Object[]{o},
                 (rs, rowNum) ->
                         new Pessoa(
                                 rs.getLong("pessoaid"),
@@ -64,4 +80,12 @@ public class PessoaRepository {
                         )
         );
     }
+
+    private boolean atributosUnicosNaoRepetidos(Pessoa pessoa) {
+        if (countEmail(pessoa.getEmail()) <= 0 && countBi(pessoa.getBi()) <= 0 && countNuit(pessoa.getNuit()) <= 0)
+            return true;
+        else
+            return false;
+    }
+
 }

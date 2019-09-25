@@ -16,10 +16,10 @@ public class PacienteRepository {
     @Autowired
     PessoaRepository pessoaRepository;
 
-    public int create(Paciente paciente){
+    public int create(Paciente paciente) {
         String sql = "INSERT INTO PACIENTE VALUES (?, ?, ?)";
 
-        if(pessoaRepository.create(paciente) > 0){
+        if (pessoaRepository.create(paciente) > 0) {
             long id = pessoaRepository.findPessoaByBI(paciente.getBi()).getPessoaoid();
             return jdbcTemplate.update(sql,
                     id,
@@ -31,41 +31,23 @@ public class PacienteRepository {
 
     }
 
-    public int update(long id, Paciente paciente){
-        String sql = "UPDATE Paciente set profissao = ?, estadoactual = ? where pessaoid = " + id;
-
-        return jdbcTemplate.update(sql,
-                paciente.getProfissao(),
-                paciente.getEstadoActual()
-        );
+    public int update(long id, Paciente paciente) {
+        String sql = "UPDATE Paciente set profissao = ? where pacienteid = " + id;
+        if (pessoaRepository.update(id, paciente) > 0)
+            return jdbcTemplate.update(sql,
+                    paciente.getProfissao()
+            );
+        else return 0;
     }
 
-    public List<Paciente> findAll(){
+    public int updateEstado(long id, String estado) {
+        String sql = "UPDATE Paciente set estadoactual = ? where pacienteid = " + id;
+        return jdbcTemplate.update(sql, estado);
+    }
+
+    public List<Paciente> findAll() {
         return jdbcTemplate.query(
-                "select * from paciente as p inner join pessoa as pes on pacienteid = pessoaid",
-                (rs, rowNum) ->
-                        new Paciente(
-                                rs.getLong("pessoaid"),
-                                rs.getLong("usuarioid"),
-                                rs.getString("bi"),
-                                rs.getString("nuit"),
-                                rs.getString("primeironome"),
-                                rs.getString("apelido"),
-                                rs.getString("email"),
-                                rs.getDate("datanascimento"),
-                                rs.getString("sexo"),
-                                rs.getString("endereco"),
-                                rs.getString("contactoprimario"),
-                                rs.getDate("dataregisto"),
-                                rs.getString("profissao"),
-                                rs.getString("estadoactual")
-                                )
-        );
-    }
-
-    public Paciente findPacienteById(long id){
-        return jdbcTemplate.queryForObject(
-                "select * from usuario where usuarioid = ?", new Object[]{id},
+                "select * from paciente inner join pessoa on pacienteid = pessoaid",
                 (rs, rowNum) ->
                         new Paciente(
                                 rs.getLong("pessoaid"),
@@ -85,4 +67,52 @@ public class PacienteRepository {
                         )
         );
     }
+
+    public Paciente findPacienteById(long id) {
+        return jdbcTemplate.queryForObject(
+                "select * from paciente inner join pessoa on pacienteid = pessoaid where pacienteid = ?", new Object[]{id},
+                (rs, rowNum) ->
+                        new Paciente(
+                                rs.getLong("pessoaid"),
+                                rs.getLong("usuarioid"),
+                                rs.getString("bi"),
+                                rs.getString("nuit"),
+                                rs.getString("primeironome"),
+                                rs.getString("apelido"),
+                                rs.getString("email"),
+                                rs.getDate("datanascimento"),
+                                rs.getString("sexo"),
+                                rs.getString("endereco"),
+                                rs.getString("contactoprimario"),
+                                rs.getDate("dataregisto"),
+                                rs.getString("profissao"),
+                                rs.getString("estadoactual")
+                        )
+        );
+    }
+
+    public List<Paciente> findPacienteByEstado(String estado) {
+        return jdbcTemplate.query(
+                "select * from paciente inner join pessoa on pacienteid = pessoaid where estadoactual = '" + estado + "'",
+                (rs, rowNum) ->
+                        new Paciente(
+                                rs.getLong("pessoaid"),
+                                rs.getLong("usuarioid"),
+                                rs.getString("bi"),
+                                rs.getString("nuit"),
+                                rs.getString("primeironome"),
+                                rs.getString("apelido"),
+                                rs.getString("email"),
+                                rs.getDate("datanascimento"),
+                                rs.getString("sexo"),
+                                rs.getString("endereco"),
+                                rs.getString("contactoprimario"),
+                                rs.getDate("dataregisto"),
+                                rs.getString("profissao"),
+                                rs.getString("estadoactual")
+                        )
+        );
+
+    }
+
 }
