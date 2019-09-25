@@ -1,5 +1,6 @@
 package com.kliniek.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -8,6 +9,7 @@ import java.util.Date;
 public class Usuario {
     private long usuarioid;
     private String username;
+    @JsonIgnore
     private String senha;
     private String estado;
     private Date dataCriacao;
