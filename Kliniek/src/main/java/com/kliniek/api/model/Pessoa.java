@@ -1,10 +1,11 @@
 package com.kliniek.api.model;
 
-import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
 
 public class Pessoa {
+    @JsonIgnore
     private long pessoaoid;
     private long usuarioid;
     private String bi;
