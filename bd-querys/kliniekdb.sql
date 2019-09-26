@@ -40,7 +40,7 @@ create table recepcionista(
 
 create table medico(
 	medicoid int references pessoa(pessoaid) primary key on delete cascade,
-	carteriraProfessional varchar(30) unique not null
+	carteiraProfissional varchar(30) unique not null
 );
 
 create table especialidadeMedica(
