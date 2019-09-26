@@ -22,11 +22,8 @@ public class PessoaRepository {
 
     public int update(long id, Pessoa pessoa) {
         String sql = "UPDATE Pessoa SET bi = ?, nuit = ?, primeironome = ?, apelido = ?, email = ?, datanascimento = ?," +
-                " sexo = ?, endereco = ?, contactoprimario = ? where pacienteid = " + id;
-        if (atributosUnicosNaoRepetidos(pessoa))
-            return executeUpdateQuery(sql, pessoa);
-        else
-            return 0;
+                " sexo = ?, endereco = ?, contactoprimario = ? where pessoaid = " + id;
+        return executeUpdateQuery(sql, pessoa);
     }
 
     public Pessoa findPessoaByBI(String bi) {
@@ -43,7 +40,7 @@ public class PessoaRepository {
     }
 
     public int countNuit(String nuit) {
-        return jdbcTemplate.queryForObject("select count(*) from pessoa where nuit = '" + nuit +"'", Integer.class);
+        return jdbcTemplate.queryForObject("select count(*) from pessoa where nuit = '" + nuit + "'", Integer.class);
     }
 
     private int executeUpdateQuery(String sql, Pessoa pessoa) {
@@ -61,24 +58,29 @@ public class PessoaRepository {
     }
 
     private Pessoa executeSingleObjectQuery(String sql, Object o) {
-        return jdbcTemplate.queryForObject(
-                sql, new Object[]{o},
-                (rs, rowNum) ->
-                        new Pessoa(
-                                rs.getLong("pessoaid"),
-                                rs.getLong("usuarioid"),
-                                rs.getString("bi"),
-                                rs.getString("nuit"),
-                                rs.getString("primeironome"),
-                                rs.getString("apelido"),
-                                rs.getString("email"),
-                                rs.getDate("datanascimento"),
-                                rs.getString("sexo"),
-                                rs.getString("endereco"),
-                                rs.getString("contactoprimario"),
-                                rs.getDate("dataregisto")
-                        )
-        );
+        try {
+            return jdbcTemplate.queryForObject(
+                    sql, new Object[]{o},
+                    (rs, rowNum) ->
+                            new Pessoa(
+                                    rs.getLong("pessoaid"),
+                                    rs.getLong("usuarioid"),
+                                    rs.getString("bi"),
+                                    rs.getString("nuit"),
+                                    rs.getString("primeironome"),
+                                    rs.getString("apelido"),
+                                    rs.getString("email"),
+                                    rs.getDate("datanascimento"),
+                                    rs.getString("sexo"),
+                                    rs.getString("endereco"),
+                                    rs.getString("contactoprimario"),
+                                    rs.getDate("dataregisto")
+                            )
+            );
+        } catch (Exception e) {
+            return null;
+        }
+
     }
 
     private boolean atributosUnicosNaoRepetidos(Pessoa pessoa) {
