@@ -46,26 +46,19 @@ public class PacienteRepository {
     }
 
     public List<Paciente> findAll() {
-        return jdbcTemplate.query(
-                "select * from paciente inner join pessoa on pacienteid = pessoaid",
-                (rs, rowNum) ->
-                        new Paciente(
-                                rs.getLong("pessoaid"),
-                                rs.getLong("usuarioid"),
-                                rs.getString("bi"),
-                                rs.getString("nuit"),
-                                rs.getString("primeironome"),
-                                rs.getString("apelido"),
-                                rs.getString("email"),
-                                rs.getDate("datanascimento"),
-                                rs.getString("sexo"),
-                                rs.getString("endereco"),
-                                rs.getString("contactoprimario"),
-                                rs.getDate("dataregisto"),
-                                rs.getString("profissao"),
-                                rs.getString("estadoactual")
-                        )
-        );
+        String sql = "select * from paciente inner join pessoa on pacienteid = pessoaid";
+        return executeMultipleObjectQuery(sql);
+    }
+
+    public List<Paciente> findPacienteByEstado(String estado) {
+        String sql = "select * from paciente inner join pessoa on pacienteid = pessoaid where estadoactual = '" + estado + "'";
+        return executeMultipleObjectQuery(sql);
+    }
+
+    public List<Paciente> findPaciente(String nome) {
+        nome = "'%" + nome + "%'";
+        String sql = "select * from paciente inner join pessoa on pacienteid = pessoaid where primeironome Like " + nome + " or apelido Like " + nome;
+        return executeMultipleObjectQuery(sql);
     }
 
     public Paciente findPacienteById(long id) {
@@ -91,9 +84,9 @@ public class PacienteRepository {
         );
     }
 
-    public List<Paciente> findPacienteByEstado(String estado) {
+    private List<Paciente> executeMultipleObjectQuery(String sql) {
         return jdbcTemplate.query(
-                "select * from paciente inner join pessoa on pacienteid = pessoaid where estadoactual = '" + estado + "'",
+                sql,
                 (rs, rowNum) ->
                         new Paciente(
                                 rs.getLong("pessoaid"),
@@ -112,7 +105,7 @@ public class PacienteRepository {
                                 rs.getString("estadoactual")
                         )
         );
-
     }
+
 
 }
