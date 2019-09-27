@@ -13,57 +13,95 @@ public class UsuarioRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-
-    public int create(Usuario usuario) {
-        String sql = "insert into usuario (username, senha, estado) values (?, ?, ?)";
-        return jdbcTemplate.update(sql, usuario.getUsername(), usuario.getSenha(), usuario.getEstado());
-    }
-
-
-    public int update(long id, Usuario usuario) {
-        String sql = "update usuario set username = ?, senha = ?, estado = ? where usuarioid = " + id;
-        return jdbcTemplate.update(sql, usuario.getUsername(), usuario.getSenha(), usuario.getEstado());
-    }
-
     public List<Usuario> findAll() {
-        return jdbcTemplate.query(
-                "select * from usuario",
-                (rs, rowNum) ->
-                        new Usuario(
-                                rs.getLong("usuarioid"),
-                                rs.getString("username"),
-                                rs.getString("senha"),
-                                rs.getString("estado"),
-                                rs.getDate("dataCriacao")
-                        )
-        );
+        try {
+            return jdbcTemplate.query(
+                    "select * from usuario",
+                    (rs, rowNum) ->
+                            new Usuario(
+                                    rs.getLong("usuarioid"),
+                                    rs.getString("username"),
+                                    rs.getString("senha"),
+                                    rs.getString("estado"),
+                                    rs.getDate("dataCriacao")
+                            )
+            );
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public Usuario findUsuarioById(long id) {
-        return jdbcTemplate.queryForObject(
-                "select * from usuario where usuarioid = ?", new Object[]{id},
-                (rs, rowNum) ->
-                        new Usuario(
-                                rs.getLong("usuarioid"),
-                                rs.getString("username"),
-                                rs.getString("senha"),
-                                rs.getString("estado"),
-                                rs.getTimestamp("dataCriacao")
-                        )
-        );
+        try {
+            return jdbcTemplate.queryForObject(
+                    "select * from usuario where usuarioid = ?", new Object[]{id},
+                    (rs, rowNum) ->
+                            new Usuario(
+                                    rs.getLong("usuarioid"),
+                                    rs.getString("username"),
+                                    rs.getString("senha"),
+                                    rs.getString("estado"),
+                                    rs.getTimestamp("dataCriacao")
+                            )
+            );
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public Usuario findUsuarioByUsername(String username) {
-        return jdbcTemplate.queryForObject(
-                "select * from usuario where username = ?", new Object[]{username},
-                (rs, rowNum) ->
-                        new Usuario(
-                                rs.getLong("usuarioid"),
-                                rs.getString("username"),
-                                rs.getString("senha"),
-                                rs.getString("estado"),
-                                rs.getDate("dataCriacao")
-                        )
-        );
+        try {
+            return jdbcTemplate.queryForObject(
+                    "select * from usuario where username = ?", new Object[]{username},
+                    (rs, rowNum) ->
+                            new Usuario(
+                                    rs.getLong("usuarioid"),
+                                    rs.getString("username"),
+                                    rs.getString("senha"),
+                                    rs.getString("estado"),
+                                    rs.getDate("dataCriacao")
+                            )
+            );
+        } catch (Exception e) {
+            return null;
+        }
     }
+
+    public int create(Usuario usuario) {
+        String sql = "insert into usuario (username, senha, estado) values (?, ?, ?)";
+        try {
+            return jdbcTemplate.update(sql, usuario.getUsername(), usuario.getSenha(), usuario.getEstado());
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public int updateSenha(long id, String senha) {
+        String sql = "update usuario set senha = ? where usuarioid = " + id;
+        try {
+            return jdbcTemplate.update(sql, senha);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public int updateEstado(long id, String estado) {
+        String sql = "update usuario set estado = ? where usuarioid = " + id;
+        try {
+            return jdbcTemplate.update(sql, estado);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public int updateUsername(long id, String username) {
+        String sql = "update usuario set username = ? where usuarioid = " + id;
+        try {
+            return jdbcTemplate.update(sql, username);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+
 }
