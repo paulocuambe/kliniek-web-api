@@ -17,32 +17,42 @@ public class PacienteRepository {
     PessoaRepository pessoaRepository;
 
     public int create(Paciente paciente) {
-        String sql = "INSERT INTO PACIENTE VALUES (?, ?, ?)";
-
-        if (pessoaRepository.create(paciente) > 0) {
-            long id = pessoaRepository.findPessoaByBI(paciente.getBi()).getPessoaoid();
-            return jdbcTemplate.update(sql,
-                    id,
-                    paciente.getProfissao(),
-                    paciente.getEstadoActual()
-            );
-        } else
+        try {
+            if (pessoaRepository.create(paciente) > 0) {
+                String sql = "INSERT INTO PACIENTE VALUES (?, ?, ?)";
+                return jdbcTemplate.update(sql,
+                        pessoaRepository.findPessoaByBI(paciente.getBi()).getPessoaoid(),
+                        paciente.getProfissao(),
+                        paciente.getEstadoActual()
+                );
+            } else
+                return 0;
+        } catch (Exception e) {
+            e.printStackTrace();
             return 0;
-
+        }
     }
 
     public int update(long id, Paciente paciente) {
-        String sql = "UPDATE Paciente set profissao = ? where pacienteid = " + id;
-        if (pessoaRepository.update(id, paciente) > 0)
-            return jdbcTemplate.update(sql,
-                    paciente.getProfissao()
-            );
-        else return 0;
+        try {
+            if (pessoaRepository.update(id, paciente) > 0) {
+                String sql = "UPDATE Paciente set profissao = ? where pacienteid = " + id;
+                return jdbcTemplate.update(sql, paciente.getProfissao());
+            } else return 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     public int updateEstado(long id, String estado) {
-        String sql = "UPDATE Paciente set estadoactual = ? where pacienteid = " + id;
-        return jdbcTemplate.update(sql, estado);
+        try {
+            String sql = "UPDATE Paciente set estadoactual = ? where pacienteid = " + id;
+            return jdbcTemplate.update(sql, estado);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     public List<Paciente> findAll() {
@@ -62,49 +72,60 @@ public class PacienteRepository {
     }
 
     public Paciente findPacienteById(long id) {
-        return jdbcTemplate.queryForObject(
-                "select * from paciente inner join pessoa on pacienteid = pessoaid where pacienteid = ?", new Object[]{id},
-                (rs, rowNum) ->
-                        new Paciente(
-                                rs.getLong("pessoaid"),
-                                rs.getLong("usuarioid"),
-                                rs.getString("bi"),
-                                rs.getString("nuit"),
-                                rs.getString("primeironome"),
-                                rs.getString("apelido"),
-                                rs.getString("email"),
-                                rs.getDate("datanascimento"),
-                                rs.getString("sexo"),
-                                rs.getString("endereco"),
-                                rs.getString("contactoprimario"),
-                                rs.getDate("dataregisto"),
-                                rs.getString("profissao"),
-                                rs.getString("estadoactual")
-                        )
-        );
+        try {
+            return jdbcTemplate.queryForObject(
+                    "select * from paciente inner join pessoa on pacienteid = pessoaid where pacienteid = ?", new Object[]{id},
+                    (rs, rowNum) ->
+                            new Paciente(
+                                    rs.getLong("pessoaid"),
+                                    rs.getLong("usuarioid"),
+                                    rs.getString("bi"),
+                                    rs.getString("nuit"),
+                                    rs.getString("primeironome"),
+                                    rs.getString("apelido"),
+                                    rs.getString("email"),
+                                    rs.getDate("datanascimento"),
+                                    rs.getString("sexo"),
+                                    rs.getString("endereco"),
+                                    rs.getString("contactoprimario"),
+                                    rs.getDate("dataregisto"),
+                                    rs.getString("profissao"),
+                                    rs.getString("estadoactual")
+                            )
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private List<Paciente> executeMultipleObjectQuery(String sql) {
-        return jdbcTemplate.query(
-                sql,
-                (rs, rowNum) ->
-                        new Paciente(
-                                rs.getLong("pessoaid"),
-                                rs.getLong("usuarioid"),
-                                rs.getString("bi"),
-                                rs.getString("nuit"),
-                                rs.getString("primeironome"),
-                                rs.getString("apelido"),
-                                rs.getString("email"),
-                                rs.getDate("datanascimento"),
-                                rs.getString("sexo"),
-                                rs.getString("endereco"),
-                                rs.getString("contactoprimario"),
-                                rs.getDate("dataregisto"),
-                                rs.getString("profissao"),
-                                rs.getString("estadoactual")
-                        )
-        );
+        try {
+            return jdbcTemplate.query(
+                    sql,
+                    (rs, rowNum) ->
+                            new Paciente(
+                                    rs.getLong("pessoaid"),
+                                    rs.getLong("usuarioid"),
+                                    rs.getString("bi"),
+                                    rs.getString("nuit"),
+                                    rs.getString("primeironome"),
+                                    rs.getString("apelido"),
+                                    rs.getString("email"),
+                                    rs.getDate("datanascimento"),
+                                    rs.getString("sexo"),
+                                    rs.getString("endereco"),
+                                    rs.getString("contactoprimario"),
+                                    rs.getDate("dataregisto"),
+                                    rs.getString("profissao"),
+                                    rs.getString("estadoactual")
+                            )
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 
