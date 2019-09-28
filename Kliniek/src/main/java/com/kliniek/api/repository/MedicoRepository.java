@@ -16,12 +16,14 @@ public class MedicoRepository {
     PessoaRepository pessoaRepository;
 
     public int create(Medico medico) {
-        String sql = "INSERT INTO Medico VALUES (?, ?)";
-
-        if (pessoaRepository.create(medico) > 0) {
-            long id = pessoaRepository.findPessoaByBI(medico.getBi()).getPessoaoid();
-            return jdbcTemplate.update(sql, id, medico.getCarteiraProfissional());
-        } else {
+        try {
+            if (pessoaRepository.create(medico) > 0) {
+                long id = pessoaRepository.findPessoaByBI(medico.getBi()).getPessoaoid();
+                String sql = "INSERT INTO Medico VALUES (?, ?)";
+                return jdbcTemplate.update(sql, id, medico.getCarteiraProfissional());
+            } else return 0;
+        } catch (Exception e) {
+            e.printStackTrace();
             return 0;
         }
     }
@@ -32,7 +34,12 @@ public class MedicoRepository {
 
     public int updateCarteiraProfissional(long id, String carteiraProfissional) {
         String sql = "UPDATE Medico set carteiraprofissional = ? where medicoid = " + id;
-        return jdbcTemplate.update(sql, carteiraProfissional);
+        try {
+            return jdbcTemplate.update(sql, carteiraProfissional);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     public List<Medico> findAll() {
@@ -78,30 +85,36 @@ public class MedicoRepository {
                             )
             );
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
 
     private List<Medico> executeMultipleObjectQuery(String sql) {
-        return jdbcTemplate.query(
-                sql,
-                (rs, rowNum) ->
-                        new Medico(
-                                rs.getLong("pessoaid"),
-                                rs.getLong("usuarioid"),
-                                rs.getString("bi"),
-                                rs.getString("nuit"),
-                                rs.getString("primeironome"),
-                                rs.getString("apelido"),
-                                rs.getString("email"),
-                                rs.getDate("datanascimento"),
-                                rs.getString("sexo"),
-                                rs.getString("endereco"),
-                                rs.getString("contactoprimario"),
-                                rs.getDate("dataregisto"),
-                                rs.getString("carteiraprofissional")
-                        )
-        );
+        try {
+            return jdbcTemplate.query(
+                    sql,
+                    (rs, rowNum) ->
+                            new Medico(
+                                    rs.getLong("pessoaid"),
+                                    rs.getLong("usuarioid"),
+                                    rs.getString("bi"),
+                                    rs.getString("nuit"),
+                                    rs.getString("primeironome"),
+                                    rs.getString("apelido"),
+                                    rs.getString("email"),
+                                    rs.getDate("datanascimento"),
+                                    rs.getString("sexo"),
+                                    rs.getString("endereco"),
+                                    rs.getString("contactoprimario"),
+                                    rs.getDate("dataregisto"),
+                                    rs.getString("carteiraprofissional")
+                            )
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

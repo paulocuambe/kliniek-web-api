@@ -18,16 +18,16 @@ public class UsuarioController {
 
     @GetMapping("/usuarios")
     public ResponseEntity<?> findAll() {
-        if (usuarioRepository.findAll() != null)
-            return new ResponseEntity<>(usuarioRepository.findAll(), HttpStatus.FOUND);
-        throw new ResourceNotFound("Sem usuarios para mostrar.");
+        if (usuarioRepository.findAll() == null)
+            throw new ResourceNotFound("Sem usuarios para mostrar.");
+        return new ResponseEntity<>(usuarioRepository.findAll(), HttpStatus.FOUND);
     }
 
     @GetMapping("/usuarios/{id}")
     public ResponseEntity<?> findUsuarioById(@PathVariable long id) {
         if (usuarioRepository.findUsuarioById(id) != null)
             return new ResponseEntity<>(usuarioRepository.findUsuarioById(id), HttpStatus.OK);
-        throw new ResourceNotFound("Nenhum usuario encontrado com id " + id + ".");
+        throw new ResourceNotFound("Nenhum usuario com id " + id + " foi encontrado.");
     }
 
     @GetMapping("/usuarios/username={username}")
@@ -41,36 +41,35 @@ public class UsuarioController {
     public ResponseEntity<?> create(@RequestBody Usuario usuario) {
         if (usuarioRepository.findUsuarioByUsername(usuario.getUsername()) != null)
             throw new InternalServerError("Ja existe um usuario com o username escolhido.");
+        else if (usuarioRepository.create(usuario) == 0)
+            throw new InternalServerError("Ocorreu algum erro ao gravar dados do usuario.");
         return new ResponseEntity<>(usuarioRepository.create(usuario), HttpStatus.CREATED);
     }
 
     @PatchMapping("/usuarios/{id}")
     public ResponseEntity<?> updateSenha(@PathVariable long id, @RequestBody Usuario usuario) {
-        if (usuarioRepository.findUsuarioById(id) != null)
-            if (usuarioRepository.updateSenha(id, usuario.getSenha()) > 0)
-                return new ResponseEntity<>(HttpStatus.OK);
-            else
-                throw new InternalServerError("Ocorreu algum erro ao actualizar a senha.");
-        throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
+        if (usuarioRepository.findUsuarioById(id) == null)
+            throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
+        else if (usuarioRepository.updateSenha(id, usuario.getSenha()) > 0)
+            return new ResponseEntity<>(1, HttpStatus.OK);
+        throw new InternalServerError("Ocorreu algum erro ao actualizar a senha.");
     }
 
     @PatchMapping("/usuarios/{id}")
     public ResponseEntity<?> updateEstado(@PathVariable long id, @PathVariable Usuario usuario) {
-        if (usuarioRepository.findUsuarioById(id) != null)
-            if (usuarioRepository.updateEstado(id, usuario.getEstado()) > 0)
-                return new ResponseEntity<>(HttpStatus.OK);
-            else
-                throw new InternalServerError("Ocorreu algum erro ao actualizar o estado.");
-        throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
+        if (usuarioRepository.findUsuarioById(id) == null)
+            throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
+        else if (usuarioRepository.updateEstado(id, usuario.getEstado()) > 0)
+            return new ResponseEntity<>(1, HttpStatus.OK);
+        throw new InternalServerError("Ocorreu algum erro ao actualizar o estado.");
     }
 
     @PatchMapping("/usuarios/{id}")
     public ResponseEntity<?> updateUsername(@PathVariable long id, @PathVariable Usuario usuario) {
-        if (usuarioRepository.findUsuarioById(id) != null)
-            if (usuarioRepository.updateUsername(id, usuario.getUsername()) > 0)
-                return new ResponseEntity<>(HttpStatus.OK);
-            else
-                throw new InternalServerError("Ocorreu algum erro ao actualizar o username.");
-        throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
+        if (usuarioRepository.findUsuarioById(id) == null)
+            throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
+        else if (usuarioRepository.updateUsername(id, usuario.getUsername()) > 0)
+            return new ResponseEntity<>(1, HttpStatus.OK);
+        throw new InternalServerError("Ocorreu algum erro ao actualizar o username.");
     }
 }
