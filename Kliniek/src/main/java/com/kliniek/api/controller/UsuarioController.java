@@ -45,29 +45,29 @@ public class UsuarioController {
     }
 
     @PatchMapping("/usuarios/{id}")
-    public ResponseEntity<?> updateSenha(@PathVariable long id, @RequestBody String senha) {
+    public ResponseEntity<?> updateSenha(@PathVariable long id, @RequestBody Usuario usuario) {
         if (usuarioRepository.findUsuarioById(id) != null)
-            if (usuarioRepository.updateSenha(id, senha) > 0)
+            if (usuarioRepository.updateSenha(id, usuario.getSenha()) > 0)
                 return new ResponseEntity<>(HttpStatus.OK);
             else
                 throw new InternalServerError("Ocorreu algum erro ao actualizar a senha.");
         throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
     }
 
-    @PatchMapping("/usuarios/{id}&estado={estado}")
-    public ResponseEntity<?> updateEstado(@PathVariable long id, @PathVariable String estado) {
+    @PatchMapping("/usuarios/{id}")
+    public ResponseEntity<?> updateEstado(@PathVariable long id, @PathVariable Usuario usuario) {
         if (usuarioRepository.findUsuarioById(id) != null)
-            if (usuarioRepository.updateEstado(id, estado) > 0)
+            if (usuarioRepository.updateEstado(id, usuario.getEstado()) > 0)
                 return new ResponseEntity<>(HttpStatus.OK);
             else
                 throw new InternalServerError("Ocorreu algum erro ao actualizar o estado.");
         throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
     }
 
-    @PatchMapping("/usuarios/{id}&username={username}")
-    public ResponseEntity<?> updateUsername(@PathVariable long id, @PathVariable String username) {
+    @PatchMapping("/usuarios/{id}")
+    public ResponseEntity<?> updateUsername(@PathVariable long id, @PathVariable Usuario usuario) {
         if (usuarioRepository.findUsuarioById(id) != null)
-            if (usuarioRepository.updateUsername(id, username) > 0)
+            if (usuarioRepository.updateUsername(id, usuario.getUsername()) > 0)
                 return new ResponseEntity<>(HttpStatus.OK);
             else
                 throw new InternalServerError("Ocorreu algum erro ao actualizar o username.");
