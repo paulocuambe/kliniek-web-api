@@ -40,7 +40,7 @@ public class MedicoController {
         return new ResponseEntity<>(medicoRepository.findMedico(nome), HttpStatus.FOUND);
     }
 
-    @GetMapping("/medicos/carteiraprofissional={carteiraProfissional}")
+    @GetMapping("/medicos/carteira={carteiraProfissional}")
     public ResponseEntity<?> findMedicByCarteiraProfissional(@PathVariable String carteiraProfissional) {
         if (medicoRepository.findMedicoByCarteiraProfissional(carteiraProfissional) == null)
             throw new ResourceNotFound("Nenhum medico com carteira profissional " + carteiraProfissional + " foi encontrado.");
@@ -55,7 +55,9 @@ public class MedicoController {
             throw new InternalServerError("Email duplicado. Ja existe alguem com esse email.");
         } else if (pessoaRepository.findPessoaByNuit(medico.getNuit()) != null) {
             throw new InternalServerError("NUIT duplicado. Ja existe alguem com esse NUIT.");
-        } else if (medicoRepository.create(medico) == 0)
+        } else if (medicoRepository.findMedicoByCarteiraProfissional(medico.getCarteiraProfissional()) != null)
+            throw new InternalServerError("Carteira Profissional duplicada. Ja existe alguem com o numero dessa carteira.");
+        else if (medicoRepository.create(medico) == 0)
             throw new InternalServerError("Ocorreu algum erro ao gravar informacoes do medico.");
         return new ResponseEntity<>(1, HttpStatus.CREATED);
     }
@@ -69,11 +71,11 @@ public class MedicoController {
         throw new InternalServerError("Ocorreu algum erro ao actualizar informacoes do medico.");
     }
 
-    @PatchMapping("/medicos/{id}&{carteiraProfissional}")
-    public ResponseEntity<?> updateCarteiraProfissional(@PathVariable long id, @PathVariable String carteiraProfissional) {
+    @PatchMapping("/medicos/{id}")
+    public ResponseEntity<?> updateCarteiraProfissional(@PathVariable long id, @RequestBody Medico medico) {
         if (medicoRepository.findMedicoById(id) == null)
             throw new ResourceNotFound("Nenhum medico com id " + id + "foi encontrado.");
-        else if (medicoRepository.updateCarteiraProfissional(id, carteiraProfissional) > 0)
+        else if (medicoRepository.updateCarteiraProfissional(id, medico.getCarteiraProfissional()) > 0)
             return new ResponseEntity<>(1, HttpStatus.OK);
         throw new InternalServerError("Ocorreu algum erro ao actualizar o numero da carteira profissional do medico.");
     }
