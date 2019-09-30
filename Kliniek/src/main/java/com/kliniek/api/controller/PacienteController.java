@@ -69,7 +69,7 @@ public class PacienteController {
         throw new InternalServerError("Ocorreu algum erro ao actualizar paciente.");
     }
 
-    @PatchMapping("/pacientes/{id}/")
+    @PatchMapping("/pacientes/{id}")
     public ResponseEntity<?> updateEstado(@PathVariable long id, @RequestBody Paciente paciente) {
         if (pacienteRepository.findPacienteById(id) == null)
             throw new ResourceNotFound("Nenhum paciente com id " + id + " foi encontrado.");
