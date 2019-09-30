@@ -30,7 +30,7 @@ public class UsuarioController {
         throw new ResourceNotFound("Nenhum usuario com id " + id + " foi encontrado.");
     }
 
-    @GetMapping("/usuarios/username={username}")
+    @GetMapping("/usuarios?username={username}")
     public ResponseEntity<?> findUsuarioByUsername(@PathVariable String username) {
         if (usuarioRepository.findUsuarioByUsername(username) != null)
             return new ResponseEntity<>(usuarioRepository.findUsuarioByUsername(username), HttpStatus.OK);
@@ -39,15 +39,18 @@ public class UsuarioController {
 
     @PostMapping("/usuarios")
     public ResponseEntity<?> create(@RequestBody Usuario usuario) {
+        System.out.println(usuario.getUsername());
         if (usuarioRepository.findUsuarioByUsername(usuario.getUsername()) != null)
             throw new InternalServerError("Ja existe um usuario com o username escolhido.");
-        else if (usuarioRepository.create(usuario) == 0)
+        else if (usuarioRepository.create(usuario) > 0)
+            return new ResponseEntity<>(1, HttpStatus.CREATED);
+        else
             throw new InternalServerError("Ocorreu algum erro ao gravar dados do usuario.");
-        return new ResponseEntity<>(usuarioRepository.create(usuario), HttpStatus.CREATED);
     }
 
     @PatchMapping("/usuarios/{id}")
     public ResponseEntity<?> updateSenha(@PathVariable long id, @RequestBody Usuario usuario) {
+        System.out.println(usuario.getSenha());
         if (usuarioRepository.findUsuarioById(id) == null)
             throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
         else if (usuarioRepository.updateSenha(id, usuario.getSenha()) > 0)
@@ -55,8 +58,9 @@ public class UsuarioController {
         throw new InternalServerError("Ocorreu algum erro ao actualizar a senha.");
     }
 
-    @PatchMapping("/usuarios/{id}")
-    public ResponseEntity<?> updateEstado(@PathVariable long id, @PathVariable Usuario usuario) {
+    @PatchMapping(value = "/usuarios/{id}/estado")
+    public ResponseEntity<?> updateEstado(@PathVariable long id, @RequestBody Usuario usuario) {
+        System.out.println("Estado: " + usuario.getEstado());
         if (usuarioRepository.findUsuarioById(id) == null)
             throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
         else if (usuarioRepository.updateEstado(id, usuario.getEstado()) > 0)
@@ -64,8 +68,9 @@ public class UsuarioController {
         throw new InternalServerError("Ocorreu algum erro ao actualizar o estado.");
     }
 
-    @PatchMapping("/usuarios/{id}")
-    public ResponseEntity<?> updateUsername(@PathVariable long id, @PathVariable Usuario usuario) {
+    @PatchMapping("/usuarios/{id}/username")
+    public ResponseEntity<?> updateUsername(@PathVariable long id, @RequestBody Usuario usuario) {
+        System.out.println("Username : " + usuario.getUsername());
         if (usuarioRepository.findUsuarioById(id) == null)
             throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
         else if (usuarioRepository.updateUsername(id, usuario.getUsername()) > 0)

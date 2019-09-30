@@ -9,7 +9,6 @@ import java.util.Date;
 public class Usuario {
     private long usuarioid;
     private String username;
-    @JsonIgnore
     private String senha;
     private String estado;
     private Date dataCriacao;

@@ -27,6 +27,7 @@ public class UsuarioRepository {
                             )
             );
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -45,6 +46,7 @@ public class UsuarioRepository {
                             )
             );
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -63,6 +65,7 @@ public class UsuarioRepository {
                             )
             );
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -72,6 +75,7 @@ public class UsuarioRepository {
         try {
             return jdbcTemplate.update(sql, usuario.getUsername(), usuario.getSenha(), usuario.getEstado());
         } catch (Exception e) {
+            e.printStackTrace();
             return 0;
         }
     }
@@ -81,6 +85,7 @@ public class UsuarioRepository {
         try {
             return jdbcTemplate.update(sql, senha);
         } catch (Exception e) {
+            e.printStackTrace();
             return 0;
         }
     }
@@ -90,6 +95,7 @@ public class UsuarioRepository {
         try {
             return jdbcTemplate.update(sql, estado);
         } catch (Exception e) {
+            e.printStackTrace();
             return 0;
         }
     }
