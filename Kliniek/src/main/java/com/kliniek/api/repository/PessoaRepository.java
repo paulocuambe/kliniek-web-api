@@ -39,12 +39,12 @@ public class PessoaRepository {
     }
 
     public Pessoa findPessoaByEmail(String email) {
-        String sql = "select count(*) from pessoa where email = '" + email + "'";
+        String sql = "select * from pessoa where email = ?";
         return executeSingleObjectQuery(sql, email);
     }
 
     public Pessoa findPessoaByNuit(String nuit) {
-        String sql = "select count(*) from pessoa where nuit = '" + nuit + "'";
+        String sql = "select * from pessoa where nuit = ?";
         return executeSingleObjectQuery(sql, nuit);
     }
 
@@ -88,7 +88,7 @@ public class PessoaRepository {
                             )
             );
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return null;
         }
 
