@@ -17,15 +17,14 @@ public class Pessoa {
     private Date dataNascimento;
     private String sexo;
     private String endereco;
-    private String contactoPrimario;
     private Date dataRegisto;
-    private List<Telefone> telefones;
+    private List<Telefone> contactos;
 
     public Pessoa() {
     }
 
     public Pessoa(long pessoaoid, long usuarioid, String bi, String nuit, String primeiroNome, String apelido, String email, Date dataNascimento, String sexo, String endereco,
-                  String contactoPrimario, Date dataRegisto) {
+                Date dataRegisto) {
         this.pessoaoid = pessoaoid;
         this.usuarioid = usuarioid;
         this.bi = bi;
@@ -36,12 +35,11 @@ public class Pessoa {
         this.dataNascimento = dataNascimento;
         this.sexo = sexo;
         this.endereco = endereco;
-        this.contactoPrimario = contactoPrimario;
         this.dataRegisto = dataRegisto;
     }
 
     public Pessoa(long pessoaoid, long usuarioid, String bi, String nuit, String primeiroNome, String apelido, String email, Date dataNascimento,
-                  String sexo, String endereco, String contactoPrimario, Date dataRegisto, List<Telefone> telefones) {
+                  String sexo, String endereco,  Date dataRegisto, List<Telefone> contactos) {
         this.pessoaoid = pessoaoid;
         this.usuarioid = usuarioid;
         this.bi = bi;
@@ -52,17 +50,16 @@ public class Pessoa {
         this.dataNascimento = dataNascimento;
         this.sexo = sexo;
         this.endereco = endereco;
-        this.contactoPrimario = contactoPrimario;
         this.dataRegisto = dataRegisto;
-        this.telefones = telefones;
+        this.contactos = contactos;
     }
 
-    public List<Telefone> getTelefones() {
-        return telefones;
+    public List<Telefone> getContactos() {
+        return contactos;
     }
 
-    public void setTelefones(List<Telefone> telefones) {
-        this.telefones = telefones;
+    public void setContactos(List<Telefone> contactos) {
+        this.contactos = contactos;
     }
 
     public long getPessoaoid() {
@@ -143,14 +140,6 @@ public class Pessoa {
 
     public void setEndereco(String endereco) {
         this.endereco = endereco;
-    }
-
-    public String getContactoPrimario() {
-        return contactoPrimario;
-    }
-
-    public void setContactoPrimario(String contactoPrimario) {
-        this.contactoPrimario = contactoPrimario;
     }
 
     public Date getDataRegisto() {

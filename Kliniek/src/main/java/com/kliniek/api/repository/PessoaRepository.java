@@ -61,8 +61,7 @@ public class PessoaRepository {
                     pessoa.getEmail(),
                     pessoa.getDataNascimento(),
                     pessoa.getSexo(),
-                    pessoa.getEndereco(),
-                    pessoa.getContactoPrimario()
+                    pessoa.getEndereco()
             );
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,7 +85,6 @@ public class PessoaRepository {
                                     rs.getDate("datanascimento"),
                                     rs.getString("sexo"),
                                     rs.getString("endereco"),
-                                    rs.getString("contactoprimario"),
                                     rs.getDate("dataregisto")
                             )
             );

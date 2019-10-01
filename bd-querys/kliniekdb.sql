@@ -18,7 +18,6 @@ create table pessoa (
 	dataNascimento Date,
 	sexo varchar(30),
 	endereco varchar(200),
-	contactoPrimario varchar(30) not null,
 	dataRegisto Timestamp DEFAULT (current_timestamp AT TIME ZONE 'UTC')
 );
 

@@ -15,16 +15,16 @@ public class Medico extends Pessoa{
     }
 
     public Medico(long pessoaoid, long usuarioid, String bi, String nuit, String primeiroNome, String apelido, String email, Date dataNascimento,
-                  String sexo, String endereco, String contactoPrimario, Date dataRegisto, Especialidade especialidade, String carteiraProfissional) {
-        super(pessoaoid, usuarioid, bi, nuit, primeiroNome, apelido, email, dataNascimento, sexo, endereco, contactoPrimario, dataRegisto);
+                  String sexo, String endereco, Date dataRegisto, Especialidade especialidade, String carteiraProfissional) {
+        super(pessoaoid, usuarioid, bi, nuit, primeiroNome, apelido, email, dataNascimento, sexo, endereco, dataRegisto);
         this.medicoid = pessoaoid;
         this.especialidade = especialidade;
         this.carteiraProfissional = carteiraProfissional;
     }
 
     public Medico(long pessoaoid, long usuarioid, String bi, String nuit, String primeiroNome, String apelido, String email, Date dataNascimento,
-                  String sexo, String endereco, String contactoPrimario, Date dataRegisto, List<Telefone> telefones, String carteiraProfissional, Especialidade especialidade) {
-        super(pessoaoid, usuarioid, bi, nuit, primeiroNome, apelido, email, dataNascimento, sexo, endereco, contactoPrimario, dataRegisto, telefones);
+                  String sexo, String endereco, Date dataRegisto, List<Telefone> telefones, String carteiraProfissional, Especialidade especialidade) {
+        super(pessoaoid, usuarioid, bi, nuit, primeiroNome, apelido, email, dataNascimento, sexo, endereco, dataRegisto, telefones);
         this.medicoid = pessoaoid;
         this.carteiraProfissional = carteiraProfissional;
         this.especialidade = especialidade;
