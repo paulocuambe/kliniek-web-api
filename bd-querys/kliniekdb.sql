@@ -1,15 +1,10 @@
--- Criando as enums
-create type estado_usuario as enum ('activo', 'inactivo','bloqueado');
-create type sexo_pessoa as enum ('masculino', 'femenino');
-create type estado_paciente as enum ('bom', 'medio', 'grave', 'muito grave');
-
 -- Criando Tabelas
 create table usuario(
 	usuarioid serial primary key,
 	username varchar(30) unique not null,
 	senha varchar(100) not null,
-	estado estado_usuario Default 'activo',
-	dataCriacao Timestamp default CURRENT_DATE
+	estado varchar(30) Default 'activo',
+	dataCriacao Timestamp DEFAULT (current_timestamp AT TIME ZONE 'UTC')
 );
 
 create table pessoa (
@@ -21,10 +16,10 @@ create table pessoa (
 	apelido varchar(30) not null,
 	email varchar(70) unique,
 	dataNascimento Date,
-	sexo sexo_pessoa,
+	sexo varchar(30),
 	endereco varchar(200),
 	contactoPrimario varchar(30) not null,
-	dataRegisto Timestamp not null default CURRENT_DATE
+	dataRegisto Timestamp DEFAULT (current_timestamp AT TIME ZONE 'UTC')
 );
 
 create table telefone(
@@ -34,18 +29,18 @@ create table telefone(
 );
 
 create table paciente(
-	pacienteid int references pessoa(pessoaid) primary key,
-	profissao varchar(30) unique not null,
-	estadoActual estado_paciente
+	pacienteid int references pessoa(pessoaid) primary key on delete cascade,
+	profissao varchar(30) not null,
+	estadoActual varchar(40)
 );
 
 create table recepcionista(
-	recepcionistaid int references pessoa(pessoaid) primary key
+	recepcionistaid int references pessoa(pessoaid) primary key on delete cascade
 );
 
 create table medico(
-	medicoid int references pessoa(pessoaid) primary key,
-	carteriraProfessional varchar(30) unique not null
+	medicoid int references pessoa(pessoaid) primary key on delete cascade,
+	carteiraProfissional varchar(30) unique not null
 );
 
 create table especialidadeMedica(
@@ -55,8 +50,8 @@ create table especialidadeMedica(
 );
 
 create table areaActuacao(
-	medicoid int references medico,
-	especialidadeid int references especialidadeMedica,
+	medicoid int references medico on delete cascade,
+	especialidadeid int references especialidadeMedica on delete cascade,
 	Primary Key (medicoid, especialidadeid)
 );
 

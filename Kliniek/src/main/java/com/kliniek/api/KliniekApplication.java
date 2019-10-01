@@ -7,8 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class KliniekApplication {
 
     public static void main(String[] args) {
-
-    	SpringApplication.run(KliniekApplication.class, args);
+        SpringApplication.run(KliniekApplication.class, args);
     }
 
 }

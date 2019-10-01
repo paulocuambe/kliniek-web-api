@@ -1,10 +1,13 @@
 package com.kliniek.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Date;
 
 public class Pessoa {
-    private long pessoaid;
-    private long ususarioid;
+    @JsonIgnore
+    private long pessoaoid;
+    private long usuarioid;
     private String bi;
     private String nuit;
     private String primeiroNome;
@@ -19,20 +22,37 @@ public class Pessoa {
     public Pessoa() {
     }
 
-    public long getPessoaid() {
-        return pessoaid;
+    public Pessoa(long pessoaoid, long usuarioid, String bi, String nuit, String primeiroNome, String apelido, String email, Date dataNascimento, String sexo, String endereco,
+                  String contactoPrimario, Date dataRegisto) {
+        this.pessoaoid = pessoaoid;
+        this.usuarioid = usuarioid;
+        this.bi = bi;
+        this.nuit = nuit;
+        this.primeiroNome = primeiroNome;
+        this.apelido = apelido;
+        this.email = email;
+        this.dataNascimento = dataNascimento;
+        this.sexo = sexo;
+        this.endereco = endereco;
+        this.contactoPrimario = contactoPrimario;
+        this.dataRegisto = dataRegisto;
     }
 
-    public void setPessoaid(long pessoaid) {
-        this.pessoaid = pessoaid;
+
+    public long getPessoaoid() {
+        return pessoaoid;
     }
 
-    public long getUsusarioid() {
-        return ususarioid;
+    public void setPessoaoid(long pessoaoid) {
+        this.pessoaoid = pessoaoid;
     }
 
-    public void setUsusarioid(long ususarioid) {
-        this.ususarioid = ususarioid;
+    public long getUsuarioid() {
+        return usuarioid;
+    }
+
+    public void setUsuarioid(long usuarioid) {
+        this.usuarioid = usuarioid;
     }
 
     public String getBi() {

@@ -1,13 +1,28 @@
 package com.kliniek.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.stereotype.Service;
+
 import java.util.Date;
 
+@Service
 public class Usuario {
     private long usuarioid;
     private String username;
     private String senha;
     private String estado;
     private Date dataCriacao;
+
+    public Usuario() {
+    }
+
+    public Usuario(long usuarioid, String username, String senha, String estado, Date dataCriacao) {
+        this.usuarioid = usuarioid;
+        this.username = username;
+        this.senha = senha;
+        this.estado = estado;
+        this.dataCriacao = dataCriacao;
+    }
 
     public long getUsuarioid() {
         return usuarioid;
