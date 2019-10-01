@@ -3,6 +3,7 @@ package com.kliniek.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
+import java.util.List;
 
 public class Pessoa {
     @JsonIgnore
@@ -18,6 +19,7 @@ public class Pessoa {
     private String endereco;
     private String contactoPrimario;
     private Date dataRegisto;
+    private List<Telefone> telefones;
 
     public Pessoa() {
     }
@@ -38,6 +40,30 @@ public class Pessoa {
         this.dataRegisto = dataRegisto;
     }
 
+    public Pessoa(long pessoaoid, long usuarioid, String bi, String nuit, String primeiroNome, String apelido, String email, Date dataNascimento,
+                  String sexo, String endereco, String contactoPrimario, Date dataRegisto, List<Telefone> telefones) {
+        this.pessoaoid = pessoaoid;
+        this.usuarioid = usuarioid;
+        this.bi = bi;
+        this.nuit = nuit;
+        this.primeiroNome = primeiroNome;
+        this.apelido = apelido;
+        this.email = email;
+        this.dataNascimento = dataNascimento;
+        this.sexo = sexo;
+        this.endereco = endereco;
+        this.contactoPrimario = contactoPrimario;
+        this.dataRegisto = dataRegisto;
+        this.telefones = telefones;
+    }
+
+    public List<Telefone> getTelefones() {
+        return telefones;
+    }
+
+    public void setTelefones(List<Telefone> telefones) {
+        this.telefones = telefones;
+    }
 
     public long getPessoaoid() {
         return pessoaoid;

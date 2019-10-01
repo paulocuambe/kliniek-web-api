@@ -1,9 +1,12 @@
 package com.kliniek.api.repository;
 
 import com.kliniek.api.model.Pessoa;
+import com.kliniek.api.model.Telefone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public class PessoaRepository {
@@ -94,4 +97,32 @@ public class PessoaRepository {
 
     }
 
+    public int createTelefone(Telefone telefone) {
+        try {
+            String sql = "insert into telefone values (?, ?)";
+            return jdbcTemplate.update(sql,
+                    telefone.getPessoaid(),
+                    telefone.getNumero()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public List<Telefone> findAllTelefones(long pessoaid) {
+        try {
+            return jdbcTemplate.query(
+                    "select * from telefone where pessoaid = " + pessoaid,
+                    (rs, rowNum) ->
+                            new Telefone(
+                                    rs.getLong("pessoaid"),
+                                    rs.getString("numerotelefone")
+                            )
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

@@ -65,8 +65,8 @@ public class MedicoRepository {
     }
 
     public Medico findMedicoByCarteiraProfissional(String carteiraProfissional) {
-        String sql = "select * from medico inner join pessoa on medico.medicoid=pessoa.pessoaid " +
-                "inner join especialidade on medico.especialidadeid=especialidade.especialidadeid " +
+        String sql = "select * from medico inner join pessoa on medico.medicoid = pessoa.pessoaid " +
+                "inner join especialidade on medico.especialidadeid = especialidade.especialidadeid " +
                 "where carteiraProfissional = ?";
         return executeSingleObjectQuery(sql, carteiraProfissional);
     }
@@ -89,11 +89,12 @@ public class MedicoRepository {
                                     rs.getString("endereco"),
                                     rs.getString("contactoprimario"),
                                     rs.getDate("dataregisto"),
+                                    pessoaRepository.findAllTelefones(rs.getLong("pessoaid")),
+                                    rs.getString("carteiraprofissional"),
                                     new Especialidade(
                                             rs.getLong("especialidadeid"),
                                             rs.getString("nome"),
-                                            rs.getString("descricao")),
-                                    rs.getString("carteiraprofissional")
+                                            rs.getString("descricao"))
                             )
             );
         } catch (Exception e) {
@@ -120,11 +121,12 @@ public class MedicoRepository {
                                     rs.getString("endereco"),
                                     rs.getString("contactoprimario"),
                                     rs.getDate("dataregisto"),
+                                    pessoaRepository.findAllTelefones(rs.getLong("pessoaid")),
+                                    rs.getString("carteiraprofissional"),
                                     new Especialidade(
                                             rs.getLong("especialidadeid"),
                                             rs.getString("nome"),
-                                            rs.getString("descricao")),
-                                    rs.getString("carteiraprofissional")
+                                            rs.getString("descricao"))
                             )
             );
         } catch (Exception e) {
