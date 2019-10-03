@@ -4,6 +4,7 @@ package com.kliniek.api.model;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class Paciente extends Pessoa {
@@ -14,9 +15,9 @@ public class Paciente extends Pessoa {
     public Paciente() {
     }
 
-    public Paciente(long pessoaoid, long usuarioid, String bi, String nuit, String primeiroNome, String apelido, String email,
-                    Date dataNascimento, String sexo, String endereco, String contactoPrimario, Date dataRegisto, String profissao, String estadoActual) {
-        super(pessoaoid, usuarioid, bi, nuit, primeiroNome, apelido, email, dataNascimento, sexo, endereco, contactoPrimario, dataRegisto);
+    public Paciente(long pessoaoid, long usuarioid, String bi, String nuit, String primeiroNome, String apelido, String email, Date dataNascimento,
+                    String sexo, String endereco, Date dataRegisto, List<Telefone> telefones, String profissao, String estadoActual) {
+        super(pessoaoid, usuarioid, bi, nuit, primeiroNome, apelido, email, dataNascimento, sexo, endereco, dataRegisto, telefones);
         this.pacienteid = pessoaoid;
         this.profissao = profissao;
         this.estadoActual = estadoActual;

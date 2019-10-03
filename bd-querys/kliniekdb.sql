@@ -18,7 +18,6 @@ create table pessoa (
 	dataNascimento Date,
 	sexo varchar(30),
 	endereco varchar(200),
-	contactoPrimario varchar(30) not null,
 	dataRegisto Timestamp DEFAULT (current_timestamp AT TIME ZONE 'UTC')
 );
 
@@ -40,18 +39,13 @@ create table recepcionista(
 
 create table medico(
 	medicoid int references pessoa(pessoaid) primary key on delete cascade,
-	carteiraProfissional varchar(30) unique not null
+	carteiraProfissional varchar(30) unique not null,
+	especialidadeid int references especialidade on delete cascade
 );
 
-create table especialidadeMedica(
+create table especialidade(
 	especialidadeid serial primary key,
 	nome varchar(80) not null unique,
 	descricao varchar(200) not null
-);
-
-create table areaActuacao(
-	medicoid int references medico on delete cascade,
-	especialidadeid int references especialidadeMedica on delete cascade,
-	Primary Key (medicoid, especialidadeid)
 );
 

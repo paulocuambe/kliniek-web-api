@@ -1,5 +1,6 @@
 package com.kliniek.api.repository;
 
+import com.kliniek.api.model.Especialidade;
 import com.kliniek.api.model.Medico;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -43,23 +44,30 @@ public class MedicoRepository {
     }
 
     public List<Medico> findAll() {
-        String sql = "select * from medico inner join pessoa on medicoid = pessoaid";
+        String sql = "select * from medico inner join pessoa on medico.medicoid=pessoa.pessoaid " +
+                "inner join especialidade on medico.especialidadeid=especialidade.especialidadeid;";
         return executeMultipleObjectQuery(sql);
     }
 
     public List<Medico> findMedico(String nome) {
         nome = "'%" + nome + "%'";
-        String sql = "select * from medico inner join pessoa on medicoid = pessoaid where primeironome Like " + nome + " or apelido Like " + nome;
+        String sql = "select * from medico inner join pessoa on medico.medicoid=pessoa.pessoaid " +
+                "inner join especialidade on medico.especialidadeid=especialidade.especialidadeid" +
+                " where primeironome Like " + nome + " or apelido Like " + nome;
         return executeMultipleObjectQuery(sql);
     }
 
     public Medico findMedicoById(long id) {
-        String sql = "select * from Medico inner join pessoa on pessoaid = medicoid where medicoid = ?";
+        String sql = "select * from medico inner join pessoa on medico.medicoid=pessoa.pessoaid " +
+                "inner join especialidade on medico.especialidadeid=especialidade.especialidadeid" +
+                " where medicoid = ?";
         return executeSingleObjectQuery(sql, id);
     }
 
     public Medico findMedicoByCarteiraProfissional(String carteiraProfissional) {
-        String sql = "select * from Medico inner join pessoa on pessoaid = medicoid where carteiraProfissional = ?";
+        String sql = "select * from medico inner join pessoa on medico.medicoid = pessoa.pessoaid " +
+                "inner join especialidade on medico.especialidadeid = especialidade.especialidadeid " +
+                "where carteiraProfissional = ?";
         return executeSingleObjectQuery(sql, carteiraProfissional);
     }
 
@@ -79,9 +87,13 @@ public class MedicoRepository {
                                     rs.getDate("datanascimento"),
                                     rs.getString("sexo"),
                                     rs.getString("endereco"),
-                                    rs.getString("contactoprimario"),
                                     rs.getDate("dataregisto"),
-                                    rs.getString("carteiraprofissional")
+                                    pessoaRepository.findAllTelefones(rs.getLong("pessoaid")),
+                                    rs.getString("carteiraprofissional"),
+                                    new Especialidade(
+                                            rs.getLong("especialidadeid"),
+                                            rs.getString("nome"),
+                                            rs.getString("descricao"))
                             )
             );
         } catch (Exception e) {
@@ -106,9 +118,13 @@ public class MedicoRepository {
                                     rs.getDate("datanascimento"),
                                     rs.getString("sexo"),
                                     rs.getString("endereco"),
-                                    rs.getString("contactoprimario"),
                                     rs.getDate("dataregisto"),
-                                    rs.getString("carteiraprofissional")
+                                    pessoaRepository.findAllTelefones(rs.getLong("pessoaid")),
+                                    rs.getString("carteiraprofissional"),
+                                    new Especialidade(
+                                            rs.getLong("especialidadeid"),
+                                            rs.getString("nome"),
+                                            rs.getString("descricao"))
                             )
             );
         } catch (Exception e) {

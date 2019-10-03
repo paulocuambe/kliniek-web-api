@@ -87,8 +87,8 @@ public class PacienteRepository {
                                     rs.getDate("datanascimento"),
                                     rs.getString("sexo"),
                                     rs.getString("endereco"),
-                                    rs.getString("contactoprimario"),
                                     rs.getDate("dataregisto"),
+                                    pessoaRepository.findAllTelefones(rs.getLong("pessoaid")),
                                     rs.getString("profissao"),
                                     rs.getString("estadoactual")
                             )
@@ -115,8 +115,8 @@ public class PacienteRepository {
                                     rs.getDate("datanascimento"),
                                     rs.getString("sexo"),
                                     rs.getString("endereco"),
-                                    rs.getString("contactoprimario"),
                                     rs.getDate("dataregisto"),
+                                    pessoaRepository.findAllTelefones(rs.getLong("pessoaid")),
                                     rs.getString("profissao"),
                                     rs.getString("estadoactual")
                             )
