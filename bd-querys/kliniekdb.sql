@@ -4,7 +4,8 @@ create table usuario(
 	username varchar(30) unique not null,
 	senha varchar(100) not null,
 	estado varchar(30) Default 'activo',
-	dataCriacao Timestamp DEFAULT (current_timestamp AT TIME ZONE 'UTC')
+	dataCriacao Timestamp DEFAULT (current_timestamp AT TIME ZONE 'UTC'),
+	eliminado boolean default false
 );
 
 create table pessoa (
@@ -23,24 +24,27 @@ create table pessoa (
 
 create table telefone(
 	pessoaid int references pessoa(pessoaid) on delete cascade,
-	numeroTelefone varchar(30) unique not null,
-	Primary Key (pessoaid, numeroTelefone)
+	numeroTelefone varchar(30) not null,
+	tipo varchar(30) default 'pessoal'
 );
 
 create table paciente(
 	pacienteid int references pessoa(pessoaid) primary key on delete cascade,
 	profissao varchar(30) not null,
-	estadoActual varchar(40)
+	estadoActual varchar(40),
+	eliminado boolean default false
 );
 
 create table recepcionista(
-	recepcionistaid int references pessoa(pessoaid) primary key on delete cascade
+	recepcionistaid int references pessoa(pessoaid) primary key on delete cascade,
+	eliminado boolean default false
 );
 
 create table medico(
 	medicoid int references pessoa(pessoaid) primary key on delete cascade,
 	carteiraProfissional varchar(30) unique not null,
-	especialidadeid int references especialidade on delete cascade
+	especialidadeid int references especialidade on delete cascade,
+	eliminado boolean default false
 );
 
 create table especialidade(

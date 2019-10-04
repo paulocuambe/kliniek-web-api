@@ -6,13 +6,15 @@ public class Telefone {
     @JsonIgnore
     private long pessoaid;
     private String numero;
+    private String tipo;
 
     public Telefone() {
     }
 
-    public Telefone(long pessoaid, String numero) {
+    public Telefone(long pessoaid, String numero, String tipo) {
         this.pessoaid = pessoaid;
         this.numero = numero;
+        this.tipo = tipo;
     }
 
     public long getPessoaid() {
@@ -29,5 +31,13 @@ public class Telefone {
 
     public void setNumero(String numero) {
         this.numero = numero;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 }

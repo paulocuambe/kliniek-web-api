@@ -3,6 +3,7 @@ package com.kliniek.api.controller;
 import com.kliniek.api.exception.InternalServerError;
 import com.kliniek.api.exception.ResourceNotFound;
 import com.kliniek.api.model.Medico;
+import com.kliniek.api.model.Telefone;
 import com.kliniek.api.repository.MedicoRepository;
 import com.kliniek.api.repository.PessoaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +58,24 @@ public class MedicoController {
             throw new InternalServerError("NUIT duplicado. Ja existe alguem com esse NUIT.");
         } else if (medicoRepository.findMedicoByCarteiraProfissional(medico.getCarteiraProfissional()) != null)
             throw new InternalServerError("Carteira Profissional duplicada. Ja existe alguem com o numero dessa carteira.");
-        else if (medicoRepository.create(medico) == 0)
+        else
+            for (Telefone t : medico.getContactos()) {
+                if (pessoaRepository.findTelefone(t.getTipo(), "pessoal") != null)
+                    throw new InternalServerError("Ja existe alguem usando o numero " + t.getNumero() + " como pessoal.");
+            }
+        if (medicoRepository.create(medico) == 0)
             throw new InternalServerError("Ocorreu algum erro ao gravar informacoes do medico.");
+        return new ResponseEntity<>(1, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/medicos/{id}/contactos")
+    public ResponseEntity<?> addContacto(@PathVariable long id, @RequestBody Telefone telefone) {
+        if (medicoRepository.findMedicoById(id) == null) {
+            throw new InternalServerError("Nenhum medico com id " + id + " foi encontrado.");
+        } else if (pessoaRepository.findTelefone(telefone.getNumero(), telefone.getTipo()) != null) {
+            throw new ResourceNotFound("Alguem ja registou esse contacto como " + telefone.getTipo());
+        } else if (pessoaRepository.createTelefone(new Telefone(id, telefone.getNumero(), telefone.getTipo())) == 0)
+            throw new InternalServerError("Ocorreu algum erro ao gravar contacto.");
         return new ResponseEntity<>(1, HttpStatus.CREATED);
     }
 
@@ -74,9 +91,28 @@ public class MedicoController {
     @PatchMapping("/medicos/{id}")
     public ResponseEntity<?> updateCarteiraProfissional(@PathVariable long id, @RequestBody Medico medico) {
         if (medicoRepository.findMedicoById(id) == null)
-            throw new ResourceNotFound("Nenhum medico com id " + id + "foi encontrado.");
+            throw new ResourceNotFound("Nenhum medico com id " + id + " foi encontrado.");
         else if (medicoRepository.updateCarteiraProfissional(id, medico.getCarteiraProfissional()) > 0)
             return new ResponseEntity<>(1, HttpStatus.OK);
         throw new InternalServerError("Ocorreu algum erro ao actualizar o numero da carteira profissional do medico.");
     }
+
+    @DeleteMapping("/medicos/{id}")
+    public ResponseEntity<?> delete(@PathVariable long id) {
+        if (medicoRepository.findMedicoById(id) == null)
+            throw new ResourceNotFound("Nenhum medico com id " + id + " foi encontrado.");
+        else if (medicoRepository.deleteMedico(id) == 0)
+            throw new InternalServerError("Ocorreu algum erro ao eliminar medico.");
+        return new ResponseEntity<>(1, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/medicos/{id}/{numero}")
+    public ResponseEntity<?> deleteContacto(@PathVariable long id, @PathVariable String numero) {
+        if (medicoRepository.findMedicoById(id) == null)
+            throw new ResourceNotFound("Nenhum medico com id " + id + " foi encontrado.");
+        else if (pessoaRepository.deleteContacto(id, numero) == 0)
+            throw new InternalServerError("Ocorreu algum erro ao eliminar esse contacto.");
+        return new ResponseEntity<>(1, HttpStatus.OK);
+    }
+
 }

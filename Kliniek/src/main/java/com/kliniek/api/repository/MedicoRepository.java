@@ -2,6 +2,7 @@ package com.kliniek.api.repository;
 
 import com.kliniek.api.model.Especialidade;
 import com.kliniek.api.model.Medico;
+import com.kliniek.api.model.Telefone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -19,9 +20,16 @@ public class MedicoRepository {
     public int create(Medico medico) {
         try {
             if (pessoaRepository.create(medico) > 0) {
-                long id = pessoaRepository.findPessoaByBI(medico.getBi()).getPessoaoid();
-                String sql = "INSERT INTO Medico VALUES (?, ?)";
-                return jdbcTemplate.update(sql, id, medico.getCarteiraProfissional());
+                String sql = "INSERT INTO Medico VALUES (?, ?, ?)";
+                long medicoid = pessoaRepository.findPessoaByBI(medico.getBi()).getPessoaoid();
+
+                if (medico.getContactos() != null)
+                    for (Telefone telefone : medico.getContactos()) {
+                        telefone.setPessoaid(medicoid);
+                        pessoaRepository.createTelefone(telefone);
+                    }
+
+                return jdbcTemplate.update(sql, medicoid, medico.getCarteiraProfissional(), medico.getEspecialidade().getEspecialidadeid());
             } else return 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -44,8 +52,8 @@ public class MedicoRepository {
     }
 
     public List<Medico> findAll() {
-        String sql = "select * from medico inner join pessoa on medico.medicoid=pessoa.pessoaid " +
-                "inner join especialidade on medico.especialidadeid=especialidade.especialidadeid;";
+        String sql = "select * from medico inner join pessoa on medico.medicoid = pessoa.pessoaid " +
+                "inner join especialidade on medico.especialidadeid = especialidade.especialidadeid where eliminado = false";
         return executeMultipleObjectQuery(sql);
     }
 
@@ -53,7 +61,7 @@ public class MedicoRepository {
         nome = "'%" + nome + "%'";
         String sql = "select * from medico inner join pessoa on medico.medicoid=pessoa.pessoaid " +
                 "inner join especialidade on medico.especialidadeid=especialidade.especialidadeid" +
-                " where primeironome Like " + nome + " or apelido Like " + nome;
+                " where eliminado = false and (primeironome Like " + nome + " or apelido Like " + nome + ")";
         return executeMultipleObjectQuery(sql);
     }
 
@@ -67,7 +75,7 @@ public class MedicoRepository {
     public Medico findMedicoByCarteiraProfissional(String carteiraProfissional) {
         String sql = "select * from medico inner join pessoa on medico.medicoid = pessoa.pessoaid " +
                 "inner join especialidade on medico.especialidadeid = especialidade.especialidadeid " +
-                "where carteiraProfissional = ?";
+                "where carteiraProfissional = ? and eliminado = false";
         return executeSingleObjectQuery(sql, carteiraProfissional);
     }
 
@@ -133,4 +141,13 @@ public class MedicoRepository {
         }
     }
 
+    public int deleteMedico(long id) {
+        try {
+            String sql = "UPDATE Medico set eliminado = ? where medicoid = " + id;
+            return jdbcTemplate.update(sql, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 }
