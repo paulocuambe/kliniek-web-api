@@ -2,8 +2,11 @@ package com.kliniek.api.controller;
 
 import com.kliniek.api.exception.InternalServerError;
 import com.kliniek.api.exception.ResourceNotFound;
+import com.kliniek.api.model.DiaSemana;
+import com.kliniek.api.model.Disponibilidade;
 import com.kliniek.api.model.Medico;
 import com.kliniek.api.model.Telefone;
+import com.kliniek.api.repository.DisponibilidadeRepository;
 import com.kliniek.api.repository.MedicoRepository;
 import com.kliniek.api.repository.PessoaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,9 @@ public class MedicoController {
 
     @Autowired
     PessoaRepository pessoaRepository;
+
+    @Autowired
+    DisponibilidadeRepository disponibilidadeRepository;
 
     @GetMapping("/medicos")
     public ResponseEntity<?> findAll() {
@@ -48,6 +54,18 @@ public class MedicoController {
         return new ResponseEntity<>(medicoRepository.findMedicoByCarteiraProfissional(carteiraProfissional), HttpStatus.FOUND);
     }
 
+    @GetMapping("/medicos/horarios")
+    public ResponseEntity<?> getHorarioTodos() {
+        return new ResponseEntity<>(disponibilidadeRepository.getHorarioTodosMedicos(), HttpStatus.FOUND);
+    }
+
+    @GetMapping("/medicos/{id}/horarios")
+    public ResponseEntity<?> getHorarioMedico(@PathVariable long id) {
+        if (medicoRepository.findMedicoById(id) == null)
+            throw new ResourceNotFound("Nenhum medico com id " + id + " foi encontrado.");
+        return new ResponseEntity<>(disponibilidadeRepository.getHorarioMedico(id), HttpStatus.FOUND);
+    }
+
     @PostMapping("/medicos")
     public ResponseEntity<?> create(@RequestBody Medico medico) {
         if (pessoaRepository.findPessoaByBI(medico.getBi()) != null) {
@@ -66,6 +84,14 @@ public class MedicoController {
         if (medicoRepository.create(medico) == 0)
             throw new InternalServerError("Ocorreu algum erro ao gravar informacoes do medico.");
         return new ResponseEntity<>(1, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/medicos/{id}/horarios")
+    public ResponseEntity<?> createHorario(@PathVariable long id, @RequestBody Disponibilidade disponibilidade) {
+        if (medicoRepository.findMedicoById(id) == null)
+            throw new InternalServerError("Nenhum medico com id " + id + " foi encontrado.");
+        disponibilidade.setMedicoid(id);
+        return new ResponseEntity<>(disponibilidadeRepository.create(disponibilidade), HttpStatus.CREATED);
     }
 
     @PostMapping("/medicos/{id}/contactos")
@@ -88,6 +114,16 @@ public class MedicoController {
         throw new InternalServerError("Ocorreu algum erro ao actualizar informacoes do medico.");
     }
 
+    @PutMapping("/medicos/{id}/horarios")
+    public ResponseEntity<?> updateHorario(@PathVariable long id, @RequestBody Disponibilidade disponibilidade) {
+        disponibilidade.setMedicoid(id);
+        if (medicoRepository.findMedicoById(id) == null)
+            throw new ResourceNotFound("Nenhum medico com id " + id + "foi encontrado.");
+        else if (disponibilidadeRepository.update(disponibilidade) > 0)
+            return new ResponseEntity<>(1, HttpStatus.OK);
+        throw new InternalServerError("Ocorreu algum erro ao actualizar horario.");
+    }
+
     @PatchMapping("/medicos/{id}")
     public ResponseEntity<?> updateCarteiraProfissional(@PathVariable long id, @RequestBody Medico medico) {
         if (medicoRepository.findMedicoById(id) == null)
@@ -103,6 +139,15 @@ public class MedicoController {
             throw new ResourceNotFound("Nenhum medico com id " + id + " foi encontrado.");
         else if (medicoRepository.deleteMedico(id) == 0)
             throw new InternalServerError("Ocorreu algum erro ao eliminar medico.");
+        return new ResponseEntity<>(1, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/medicos/{id}/horarios")
+    public ResponseEntity<?> deleteHorario(@PathVariable long id, @RequestBody DiaSemana diaSemana) {
+        if (medicoRepository.findMedicoById(id) == null)
+            throw new ResourceNotFound("Nenhum medico com id " + id + " foi encontrado.");
+        else if (disponibilidadeRepository.deleteHorario(id, diaSemana.getDiaid()) == 0)
+            throw new InternalServerError("Ocorreu algum erro ao eliminar horario.");
         return new ResponseEntity<>(1, HttpStatus.OK);
     }
 
