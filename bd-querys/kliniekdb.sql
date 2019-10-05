@@ -53,3 +53,28 @@ create table especialidade(
 	descricao varchar(200) not null
 );
 
+create table diaSemana(
+	diaid serial primary key,
+	designacao varchar(30)
+);
+
+insert into diaSemana (designacao) values 
+('domingo'), ('segunda-feira'), ('terca-feira'), ('quarta-feira'), 
+('quinta-feira'), ('sexta-feira'), ('sabado');
+
+create table periodo(
+	periodoid serial primary key,
+	p_designacao varchar(70),
+	horainicio Time not null,
+	horafim Time not null
+);
+
+insert into periodo (p_designacao, horainicio, horafim) values 
+('normal', '07:00', '15:30'), ('noite', '15:00', '23:30'), ('plantao', '23:00', '07:30');
+
+create table disponibilidade (
+	medicoid int references medico not null on delete cascade,
+	diaid int references diaSemana not null on delete cascade,
+	periodoid int references periodo not null on delete cascade,
+	Primary key (medicoid, diaid)
+);
