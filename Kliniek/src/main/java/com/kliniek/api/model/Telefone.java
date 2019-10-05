@@ -1,7 +1,9 @@
 package com.kliniek.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.stereotype.Service;
 
+@Service
 public class Telefone {
     @JsonIgnore
     private long pessoaid;
