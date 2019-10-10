@@ -53,6 +53,8 @@ create table especialidade(
 	descricao varchar(200) not null
 );
 
+--Gestao de Horarios
+
 create table diaSemana(
 	diaid serial primary key,
 	designacao varchar(30)
@@ -77,4 +79,39 @@ create table disponibilidade (
 	diaid int references diaSemana not null on delete cascade,
 	periodoid int references periodo not null on delete cascade,
 	Primary key (medicoid, diaid)
+);
+
+-- Marcacao de consultas
+
+create table tipoConsulta(
+	tipoconsultaid serial primary key,
+	designacao varchar(120),
+	descricao varchar(200),
+	preco numeric(10,2),
+	disponivel boolean default true
+);
+
+
+create table tipoExame(
+	tipoexameid serial primary key,
+	designacao varchar(120),
+	descricao varchar(200),
+	preco numeric(10,2),
+	disponivel boolean default true
+);
+
+create table exame(
+	exameid serial primary key,
+	tipoexameid int references tipoExame,
+	pacienteid int references paciente,
+	data Date,
+	hora Time
+);
+
+create table consulta(
+	consultaid serial primary key,
+	tipoconsultaid int references tipoconsultaid,
+	medicoid int references medico,
+	dia Date,
+	hora Time,
 );
