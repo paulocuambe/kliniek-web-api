@@ -4,6 +4,7 @@ import com.kliniek.api.exception.InternalServerError;
 import com.kliniek.api.exception.ResourceNotFound;
 import com.kliniek.api.model.Paciente;
 import com.kliniek.api.model.Telefone;
+import com.kliniek.api.repository.ConsultaRepository;
 import com.kliniek.api.repository.PacienteRepository;
 import com.kliniek.api.repository.PessoaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class PacienteController {
 
     @Autowired
     PessoaRepository pessoaRepository;
+
+    @Autowired
+    ConsultaRepository consultaRepository;
 
     @GetMapping("/pacientes")
     public ResponseEntity<?> findAll() {
@@ -56,6 +60,11 @@ public class PacienteController {
         if (pacienteRepository.findPacienteByEstado(estado) == null)
             throw new ResourceNotFound("Nenhum paciente encontra-se no estado " + estado + ".");
         return new ResponseEntity<>(pacienteRepository.findPacienteByEstado(estado), HttpStatus.FOUND);
+    }
+
+    @GetMapping("/pacientes/{id}/consultas")
+    public ResponseEntity<?> findAllConsultasDoPaciente(@PathVariable long id){
+        return new ResponseEntity<>(consultaRepository.findAllConsultasDoPaciente(id), HttpStatus.FOUND);
     }
 
     @PostMapping("/pacientes")
