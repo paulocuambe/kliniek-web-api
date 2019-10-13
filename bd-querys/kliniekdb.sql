@@ -104,14 +104,28 @@ create table exame(
 	exameid serial primary key,
 	tipoexameid int references tipoExame,
 	pacienteid int references paciente,
+	recepcionistaid int references recepcionista,
 	data Date,
-	hora Time
+	hora Time,
+	observacao varchar(200),
+	resultado boolean default false,
+	urgente boolean default false,
+	realizado boolean default false,
+	Primary Key (data, hora)
 );
 
 create table consulta(
 	consultaid serial primary key,
-	tipoconsultaid int references tipoconsultaid,
+	tipoconsultaid int references tipoconsulta,
 	medicoid int references medico,
+	pacienteid int references paciente,
+	recepcionistaid int references recepcionista,
 	dia Date,
 	hora Time,
+	descricao varchar(300),
+	prescricao varchar(300),
+	observacao varchar(200),
+	urgente boolean default false,
+	realizada boolean default false,
+	Primary Key (medicoid, dia, hora)
 );
