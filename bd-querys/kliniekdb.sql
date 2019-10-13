@@ -108,7 +108,7 @@ create table exame(
 	data Date,
 	hora Time,
 	observacao varchar(200),
-	resultado boolean default false,
+	positivo boolean default false,
 	urgente boolean default false,
 	realizado boolean default false,
 	Primary Key (data, hora)
