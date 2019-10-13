@@ -6,6 +6,7 @@ import com.kliniek.api.model.DiaSemana;
 import com.kliniek.api.model.Disponibilidade;
 import com.kliniek.api.model.Medico;
 import com.kliniek.api.model.Telefone;
+import com.kliniek.api.repository.ConsultaRepository;
 import com.kliniek.api.repository.DisponibilidadeRepository;
 import com.kliniek.api.repository.MedicoRepository;
 import com.kliniek.api.repository.PessoaRepository;
@@ -25,6 +26,9 @@ public class MedicoController {
 
     @Autowired
     DisponibilidadeRepository disponibilidadeRepository;
+
+    @Autowired
+    ConsultaRepository consultaRepository;
 
     @GetMapping("/medicos")
     public ResponseEntity<?> findAll() {
@@ -103,6 +107,11 @@ public class MedicoController {
         } else if (pessoaRepository.createTelefone(new Telefone(id, telefone.getNumero(), telefone.getTipo())) == 0)
             throw new InternalServerError("Ocorreu algum erro ao gravar contacto.");
         return new ResponseEntity<>(1, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/medicos/{id}/consultas")
+    public ResponseEntity<?> findAllConsultasDoMedico(@PathVariable long id) {
+        return new ResponseEntity<>(consultaRepository.findAllConsultasDoMedico(id), HttpStatus.FOUND);
     }
 
     @PutMapping("/medicos/{id}")
