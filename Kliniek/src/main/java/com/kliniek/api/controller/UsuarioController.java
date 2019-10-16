@@ -70,11 +70,19 @@ public class UsuarioController {
 
     @PatchMapping("/usuarios/{id}/username")
     public ResponseEntity<?> updateUsername(@PathVariable long id, @RequestBody Usuario usuario) {
-        System.out.println("Username : " + usuario.getUsername());
         if (usuarioRepository.findUsuarioById(id) == null)
             throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
         else if (usuarioRepository.updateUsername(id, usuario.getUsername()) > 0)
             return new ResponseEntity<>(1, HttpStatus.OK);
         throw new InternalServerError("Ocorreu algum erro ao actualizar o username.");
+    }
+
+    @DeleteMapping("/usuarios/{id}")
+    public ResponseEntity<?> delete(@PathVariable long id) {
+        if (usuarioRepository.findUsuarioById(id) == null)
+            throw new ResourceNotFound("Usuario com id " + id + " nao existe.");
+        else if (usuarioRepository.deleteUsuario(id) == 0)
+            throw new InternalServerError("Ocorreu algum erro ao eliminar usuario.");
+        return new ResponseEntity<>(1, HttpStatus.OK);
     }
 }

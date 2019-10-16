@@ -16,8 +16,8 @@ public class PessoaRepository {
     public int create(Pessoa pessoa) {
         try {
             String sql = "INSERT INTO Pessoa " +
-                    "(bi, nuit, primeironome, apelido, email, datanascimento, sexo, endereco, contactoprimario)" +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "(bi, nuit, primeironome, apelido, email, datanascimento, sexo, endereco)" +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             return executeUpdateQuery(sql, pessoa);
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,7 +89,7 @@ public class PessoaRepository {
                             )
             );
         } catch (Exception e) {
-//            e.printStackTrace();
+            e.printStackTrace();
             return null;
         }
 
@@ -97,10 +97,11 @@ public class PessoaRepository {
 
     public int createTelefone(Telefone telefone) {
         try {
-            String sql = "insert into telefone values (?, ?)";
+            String sql = "insert into telefone values (?, ?, ?)";
             return jdbcTemplate.update(sql,
                     telefone.getPessoaid(),
-                    telefone.getNumero()
+                    telefone.getNumero(),
+                    telefone.getTipo().toLowerCase()
             );
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,12 +116,42 @@ public class PessoaRepository {
                     (rs, rowNum) ->
                             new Telefone(
                                     rs.getLong("pessoaid"),
-                                    rs.getString("numerotelefone")
+                                    rs.getString("numerotelefone"),
+                                    rs.getString("tipo")
                             )
             );
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public Telefone findTelefone(String numero, String tipo){
+        try {
+            return jdbcTemplate.queryForObject(
+                    "select * from telefone where numerotelefone = ? and tipo = ?", new Object[]{numero, tipo},
+                    (rs, rowNum) ->
+                            new Telefone(
+                                    rs.getLong("pessoaid"),
+                                    rs.getString("numerotelefone"),
+                                    rs.getString("tipo")
+                            )
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public int deleteContacto(long pessoaid, String numero) {
+        try {
+            return jdbcTemplate.update("delete from telefone where numerotelefone = ? and pessoaid = ?",
+                    numero,
+                    pessoaid
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.kliniek.api.repository;
 
 import com.kliniek.api.model.Paciente;
+import com.kliniek.api.model.Telefone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -20,13 +21,22 @@ public class PacienteRepository {
         try {
             if (pessoaRepository.create(paciente) > 0) {
                 String sql = "INSERT INTO PACIENTE VALUES (?, ?, ?)";
+                long pessoaid = pessoaRepository.findPessoaByBI(paciente.getBi()).getPessoaoid();
+
+                if (paciente.getContactos() != null)
+                    for (Telefone telefone : paciente.getContactos()) {
+                        telefone.setPessoaid(pessoaid);
+                        pessoaRepository.createTelefone(telefone);
+                    }
+
                 return jdbcTemplate.update(sql,
-                        pessoaRepository.findPessoaByBI(paciente.getBi()).getPessoaoid(),
+                        pessoaid,
                         paciente.getProfissao(),
                         paciente.getEstadoActual()
                 );
-            } else
+            } else {
                 return 0;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
@@ -56,18 +66,19 @@ public class PacienteRepository {
     }
 
     public List<Paciente> findAll() {
-        String sql = "select * from paciente inner join pessoa on pacienteid = pessoaid";
+        String sql = "select * from paciente inner join pessoa on pacienteid = pessoaid where eliminado = false";
         return executeMultipleObjectQuery(sql);
     }
 
     public List<Paciente> findPacienteByEstado(String estado) {
-        String sql = "select * from paciente inner join pessoa on pacienteid = pessoaid where estadoactual = '" + estado + "'";
+        String sql = "select * from paciente inner join pessoa on pacienteid = pessoaid where eliminado = false and estadoactual = '" + estado + "'";
         return executeMultipleObjectQuery(sql);
     }
 
     public List<Paciente> findPaciente(String nome) {
         nome = "'%" + nome + "%'";
-        String sql = "select * from paciente inner join pessoa on pacienteid = pessoaid where primeironome Like " + nome + " or apelido Like " + nome;
+        String sql = "select * from paciente inner join pessoa on pacienteid = pessoaid where eliminado = false and " +
+                "(primeironome Like " + nome + " or apelido Like " + nome + ")";
         return executeMultipleObjectQuery(sql);
     }
 
@@ -128,5 +139,14 @@ public class PacienteRepository {
 
     }
 
+    public int deletePaciente(long id) {
+        try {
+            String sql = "UPDATE Paciente set eliminado = ? where pacienteid = " + id;
+            return jdbcTemplate.update(sql, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 
 }

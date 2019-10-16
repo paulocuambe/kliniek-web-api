@@ -109,5 +109,13 @@ public class UsuarioRepository {
         }
     }
 
-
+    public int deleteUsuario(long usuarioid){
+        try {
+            String sql = "UPDATE Usuario set eliminado = ? where usuarioid = " + usuarioid;
+            return jdbcTemplate.update(sql, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 }

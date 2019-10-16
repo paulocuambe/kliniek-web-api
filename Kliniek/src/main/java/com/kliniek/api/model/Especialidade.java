@@ -1,5 +1,8 @@
 package com.kliniek.api.model;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class Especialidade {
     private long especialidadeid;
     private String nome;
