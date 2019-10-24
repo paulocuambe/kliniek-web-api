@@ -145,3 +145,6 @@ create table consulta(
 	realizada boolean default false,
 	unique (medicoid, dia, hora)
 );
+
+alter table exame add preco numeric(10, 2);
+alter table consulta add preco numeric(10, 2);
