@@ -29,19 +29,19 @@ create table telefone(
 );
 
 create table paciente(
-	pacienteid int references pessoa(pessoaid) primary key on delete cascade,
+	pacienteid int references pessoa(pessoaid) primary key ,
 	profissao varchar(30) not null,
 	estadoActual varchar(40),
 	eliminado boolean default false
 );
 
 create table recepcionista(
-	recepcionistaid int references pessoa(pessoaid) primary key on delete cascade,
+	recepcionistaid int references pessoa(pessoaid) primary key,
 	eliminado boolean default false
 );
 
 create table medico(
-	medicoid int references pessoa(pessoaid) primary key on delete cascade,
+	medicoid int references pessoa(pessoaid) primary key,
 	carteiraProfissional varchar(30) unique not null,
 	especialidadeid int references especialidade on delete cascade,
 	eliminado boolean default false
@@ -52,6 +52,11 @@ create table especialidade(
 	nome varchar(80) not null unique,
 	descricao varchar(200) not null
 );
+--
+insert into especialidade (nome, descricao)
+values ('Pediatria', 'Cuida de crancas.'),
+('Genecologista', 'Cuida do sistema reprodutor feminino.'),
+('Psicologo', 'Saude mental.'), ('Generalista', 'Cuida das doencas do povo');
 
 --Gestao de Horarios
 
@@ -60,8 +65,8 @@ create table diaSemana(
 	designacao varchar(30)
 );
 
-insert into diaSemana (designacao) values 
-('domingo'), ('segunda-feira'), ('terca-feira'), ('quarta-feira'), 
+insert into diaSemana (designacao) values
+('domingo'), ('segunda-feira'), ('terca-feira'), ('quarta-feira'),
 ('quinta-feira'), ('sexta-feira'), ('sabado');
 
 create table periodo(
@@ -71,13 +76,14 @@ create table periodo(
 	horafim Time not null
 );
 
-insert into periodo (p_designacao, horainicio, horafim) values 
-('normal', '07:00', '15:30'), ('noite', '15:00', '23:30'), ('plantao', '23:00', '07:30');
+insert into periodo (p_designacao, horainicio, horafim) values
+('normal', '07:00', '15:30'),
+('noite', '15:00', '23:30'), ('plantao', '23:00', '07:30');
 
 create table disponibilidade (
-	medicoid int references medico not null on delete cascade,
-	diaid int references diaSemana not null on delete cascade,
-	periodoid int references periodo not null on delete cascade,
+	medicoid int references medico not null,
+	diaid int references diaSemana not null,
+	periodoid int references periodo not null,
 	Primary key (medicoid, diaid)
 );
 
@@ -90,6 +96,10 @@ create table tipoConsulta(
 	preco numeric(10,2),
 	disponivel boolean default true
 );
+insert into tipoConsulta (designacao, descricao, preco) values
+('Normal', 'Marcada no intervalo das 7 as 12', 1200),
+('Urgente', 'Marcada fora do horario normal', 1500),
+('Especial', 'Marcada no instante da consulta.', 2000);
 
 
 create table tipoExame(
@@ -99,6 +109,12 @@ create table tipoExame(
 	preco numeric(10,2),
 	disponivel boolean default true
 );
+
+insert into tipoExame (designacao, descricao, preco) values
+('Normal', 'Marcada no intervalo das 7 as 12', 1200),
+('Urgente', 'Marcada fora do horario normal', 1500),
+('Especial', 'Marcada no instante da consulta.', 2000);
+
 
 create table exame(
 	exameid serial primary key,
@@ -111,7 +127,7 @@ create table exame(
 	positivo boolean default false,
 	urgente boolean default false,
 	realizado boolean default false,
-	Primary Key (data, hora)
+	unique (data, hora)
 );
 
 create table consulta(
@@ -127,5 +143,5 @@ create table consulta(
 	observacao varchar(200),
 	urgente boolean default false,
 	realizada boolean default false,
-	Primary Key (medicoid, dia, hora)
+	unique (medicoid, dia, hora)
 );
