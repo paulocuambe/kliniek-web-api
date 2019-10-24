@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
+@CrossOrigin(origins = "*")
 @RestController
 public class UsuarioController {
 
@@ -30,11 +30,11 @@ public class UsuarioController {
         throw new ResourceNotFound("Nenhum usuario com id " + id + " foi encontrado.");
     }
 
-    @GetMapping("/usuarios?username={username}")
+    @GetMapping("/usuarios/username/{username}")
     public ResponseEntity<?> findUsuarioByUsername(@PathVariable String username) {
-        if (usuarioRepository.findUsuarioByUsername(username) != null)
-            return new ResponseEntity<>(usuarioRepository.findUsuarioByUsername(username), HttpStatus.OK);
-        throw new ResourceNotFound("Nenhum usuario com username " + username + " foi encontrado.");
+        if (usuarioRepository.findUsuarioByUsername(username) == null)
+            throw new ResourceNotFound("Nenhum usuario com username " + username + " foi encontrado.");
+        return new ResponseEntity<>(usuarioRepository.findUsuarioByUsername(username), HttpStatus.OK);
     }
 
     @PostMapping("/usuarios")

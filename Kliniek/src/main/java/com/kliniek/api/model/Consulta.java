@@ -7,7 +7,9 @@ import java.util.Date;
 public class Consulta {
     private long consultaid;
     private long tipoconsultaid;
+    private String nomeMedico;
     private long medicoid;
+    private String nomePaciente;
     private long pacienteid;
     private long recepcionistaid;
     private Date data;
@@ -16,6 +18,7 @@ public class Consulta {
     private String prescricao;
     private String observacao;
     private boolean urgente;
+    private boolean realizada;
 
     public Consulta() {
     }
@@ -33,6 +36,63 @@ public class Consulta {
         this.prescricao = prescricao;
         this.observacao = observacao;
         this.urgente = urgente;
+    }
+
+    public Consulta(long consultaid, long tipoconsultaid, String nomeMedico, long medicoid, String nomePaciente, long pacienteid, long recepcionistaid, Date data, String hora, String descricao, String prescricao, String observacao, boolean urgente) {
+        this.consultaid = consultaid;
+        this.tipoconsultaid = tipoconsultaid;
+        this.nomeMedico = nomeMedico;
+        this.medicoid = medicoid;
+        this.nomePaciente = nomePaciente;
+        this.pacienteid = pacienteid;
+        this.recepcionistaid = recepcionistaid;
+        this.data = data;
+        this.hora = hora;
+        this.descricao = descricao;
+        this.prescricao = prescricao;
+        this.observacao = observacao;
+        this.urgente = urgente;
+    }
+
+    public Consulta(long consultaid, long tipoconsultaid, String nomeMedico, long medicoid, String nomePaciente, long pacienteid, long recepcionistaid, Date data, String hora, String descricao, String prescricao, String observacao, boolean urgente, boolean realizada) {
+        this.consultaid = consultaid;
+        this.tipoconsultaid = tipoconsultaid;
+        this.nomeMedico = nomeMedico;
+        this.medicoid = medicoid;
+        this.nomePaciente = nomePaciente;
+        this.pacienteid = pacienteid;
+        this.recepcionistaid = recepcionistaid;
+        this.data = data;
+        this.hora = hora;
+        this.descricao = descricao;
+        this.prescricao = prescricao;
+        this.observacao = observacao;
+        this.urgente = urgente;
+        this.realizada = realizada;
+    }
+
+    public boolean isRealizada() {
+        return realizada;
+    }
+
+    public void setRealizada(boolean realizada) {
+        this.realizada = realizada;
+    }
+
+    public String getNomeMedico() {
+        return nomeMedico;
+    }
+
+    public void setNomeMedico(String nomeMedico) {
+        this.nomeMedico = nomeMedico;
+    }
+
+    public String getNomePaciente() {
+        return nomePaciente;
+    }
+
+    public void setNomePaciente(String nomePaciente) {
+        this.nomePaciente = nomePaciente;
     }
 
     public long getConsultaid() {
