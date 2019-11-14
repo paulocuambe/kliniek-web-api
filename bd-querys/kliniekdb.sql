@@ -116,19 +116,45 @@ insert into tipoExame (designacao, descricao, preco) values
 ('Especial', 'Marcada no instante da consulta.', 2000);
 
 
-create table exame(
-	exameid serial primary key,
-	tipoexameid int references tipoExame,
-	pacienteid int references paciente,
-	recepcionistaid int references recepcionista,
-	data Date,
-	hora Time,
-	observacao varchar(200),
-	positivo boolean default false,
-	urgente boolean default false,
-	realizado boolean default false,
-	unique (data, hora)
-);
+-- Table: public.exame
+
+-- DROP TABLE public.exame;
+drop table exame;
+
+CREATE TABLE public.exame
+(
+    exameid integer NOT NULL,
+    tipoexameid integer,
+    pacienteid integer,
+    recepcionistaid integer,
+	enfermeiroid integer,
+    data date,
+    hora time without time zone,
+    observacao character varying(200) COLLATE pg_catalog."default",
+    positivo boolean DEFAULT false,
+    urgente boolean DEFAULT false,
+    realizado boolean DEFAULT false,
+    preco numeric(10,2),
+    CONSTRAINT exame_pkey PRIMARY KEY (exameid),
+    CONSTRAINT exame_data_hora_key UNIQUE (data, hora)
+,
+    CONSTRAINT exame_pacienteid_fkey FOREIGN KEY (pacienteid)
+        REFERENCES public.paciente (pacienteid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT exame_recepcionistaid_fkey FOREIGN KEY (recepcionistaid)
+        REFERENCES public.recepcionista (recepcionistaid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+	CONSTRAINT enfermeiro_enfermeiroid_fkey FOREIGN KEY (enfermeiroid)
+        REFERENCES public.enfermeiro (enfermeiroid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT exame_tipoexameid_fkey FOREIGN KEY (tipoexameid)
+        REFERENCES public.tipoexame (tipoexameid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
 
 create table consulta(
 	consultaid serial primary key,
@@ -148,3 +174,266 @@ create table consulta(
 
 alter table exame add preco numeric(10, 2);
 alter table consulta add preco numeric(10, 2);
+
+-- Tabelas de Auditoria
+CREATE TABLE public.auditoria_precos_consultas
+(
+    tipoconsultaid integer,
+    valor_antigo numeric(10,2),
+    valor_actual numeric(10,2),
+    data_alteracao timestamp without time zone DEFAULT timezone('UTC'::text, CURRENT_TIMESTAMP)
+)
+
+CREATE TABLE public.auditoria_precos_exames
+(
+    tipoexameid integer,
+    valor_antigo numeric(10,2),
+    valor_actual numeric(10,2),
+    data_alteracao timestamp without time zone DEFAULT timezone('UTC'::text, CURRENT_TIMESTAMP)
+)
+
+--insercoes
+
+INSERT INTO public.pessoa(
+	bi, nuit, primeironome, apelido, email, datanascimento, sexo, endereco)
+	VALUES ('1120021121D', '1229101221', 'Carlos', 'Massavanhane', 
+			'camjr@gmail.com', '1997-02-01', 'Masculino', 'C. Sol'),
+		('11200211721D', '819213131', 'Joao', 'Carlos', 
+			'j.carlos@gmail.com', '1987-04-21', 'Masculino', 'Marracuene')
+	,('1120127121E', '8129101221', 'Maria', 'Mondlane', 
+			'maria.mondlane@gmail.com', '1997-02-01', 'Femenino', 'Magoanine');
+
+
+	INSERT INTO public.paciente(
+	pacienteid, profissao, estadoactual)
+	VALUES (1, 'Estudante', 'normal'),
+	(3, 'Motorista', 'grave');
+
+INSERT INTO public.medico(
+	medicoid, carteiraprofissional, especialidadeid)
+	VALUES (2, '5563-A', 1),
+	(4, '8163-B', 2);
+
+	INSERT INTO public.consulta(
+	tipoconsultaid, medicoid, pacienteid, dia, hora, descricao)
+	VALUES (2, 2, 1, '2019-12-16', '09:30', 'com muitas dores de cabeca');
+
+	INSERT INTO public.exame(
+	tipoexameid, pacienteid, data, hora)
+	VALUES (1, 1, '2019-12-24', '15:15');
+
+--procedures
+CREATE OR REPLACE PROCEDURE marcarExame(INT, INT, INT, INT, date, time)
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    -- inserindo dados do exame na tabela exame
+	insert into exame(tipoexameid, pacienteid, recepcionistaid, enferemeiroid, data, hora) values($1,$2,$3,$4,$5,$6);
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE realizarConsulta(INT, varchar, varchar)
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    -- actualizando dados da consulta 
+    UPDATE consulta 
+    SET prescricao=$2, observacao=$3, realizada=true
+    WHERE consultaid = $1;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE public.marcarconsulta1(
+	integer,
+	integer,
+	integer,
+	integer,
+	date,
+	time without time zone,
+	character varying)
+LANGUAGE 'plpgsql'
+
+AS $BODY$
+BEGIN
+ insert into consulta(tipoconsultaid,medicoid,pacienteid,recepcionistaid, dia, hora, descricao) values($1, $2,$3,$4,$5, $6, $7);
+END;
+$BODY$;
+
+CREATE OR REPLACE PROCEDURE marcarExame(INT, INT, INT, INT, date, time, boolean)
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    -- inserindo dados do exame na tabela exame
+	insert into exame(tipoexameid, pacienteid, recepcionistaid, enferemeiroid, data, hora, urgente, realizado) values($1,$2,$3,$4,$5,$6,$7,true);
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE realizarExame(INT, varchar, boolean)
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    -- actualizando dados do exame na tabela exame
+	UPDATE exame 
+    SET observacao = $2, positivo=$3
+    WHERE exameid = $1;
+END;
+$$;
+
+--listar consultas por realizar
+CREATE OR REPLACE PROCEDURE listarConsultasPorRealizar()
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    select * from consulta where realizada = false;
+END;
+$$;
+
+--Listar as 10 ultimas  consultas realizadas por um determinado pacientes;
+CREATE OR REPLACE PROCEDURE listarDezUltimasConsultasRealizadas(int)
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    select * from consulta where pacienteid=$1 and realizada=true order by data limit 10;
+END;
+$$;
+
+--Listar os 10 ultimos  exames realizados por um determinado paciente;
+CREATE OR REPLACE PROCEDURE listarDezUltimosExamesRealizados(int)
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+    select * from exame where pacienteid=$1 and realizado=true order by data  limit 10 ;
+END;
+$$;
+
+--inserirPessoa(bi, nuit, primeironome, apelido, email, sexo, endereco)
+CREATE OR REPLACE PROCEDURE inserirPessoa(varchar, varchar, varchar, varchar, varchar, varchar, varchar)
+LANGUAGE plpgsql    
+AS $$
+BEGIN
+   insert into pessoa (bi, nuit, primeironome, apelido, email, datanascimento,sexo, endereco) 
+   values ($1, $2, $3, $4, $5, now(),$6, $7);
+END;
+$$
+
+--inserirPaciente(bi, nuit, primeironome, apelido, email, sexo, endereco, profissao)
+CREATE OR REPLACE PROCEDURE inserirPaciente(varchar, varchar, varchar, varchar, varchar, varchar, varchar, varchar)
+LANGUAGE plpgsql    
+AS  $$
+declare
+	pid integer;
+BEGIN
+	call inserirPessoa($1, $2, $3, $4, $5,$6, $7);
+	select pessoaid into pid from pessoa where bi=$1;
+	insert into paciente(pacienteid, profissao) values(pid, $8);
+END;
+$$
+
+--inserirMedico(bi, nuit, primeironome, apelido, email, sexo, endereco, carteiraprofissional, especialidade)
+CREATE OR REPLACE PROCEDURE inserirMedico(varchar, varchar, varchar, varchar, varchar, varchar, varchar, varchar, int)
+LANGUAGE plpgsql    
+AS  $$
+declare
+	pid integer;
+BEGIN
+ 	call inserirPessoa($1, $2, $3, $4, $5,$6, $7);
+	select pessoaid into pid from pessoa where bi=$1;
+	insert into medico(medicoid, carteiraprofissional, especialidadeid) values(pid, $8, $9);
+END;
+$$
+
+--inserirRecepcionista(bi, nuit, primeironome, apelido, email, sexo, endereco)
+CREATE OR REPLACE PROCEDURE inserirRecepcionista(varchar, varchar, varchar, varchar, varchar, varchar, varchar)
+LANGUAGE plpgsql    
+AS  $$
+declare
+	pid integer;
+BEGIN
+ 	call inserirPessoa($1, $2, $3, $4, $5,$6, $7);
+	select pessoaid into pid from pessoa where bi=$1;
+	insert into recepcionista values(pid);
+END;
+$$
+
+
+
+
+
+--funcoes
+
+
+CREATE OR REPLACE FUNCTION public."contaConsultaPorRealizar"(
+	)
+    RETURNS integer
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$declare 
+	contador integer;
+begin
+	select count(*) into contador from consulta where realizada=false;
+	return contador;
+end;$BODY$;
+
+
+CREATE OR REPLACE FUNCTION public."contaExamePorRealizar"(
+	)
+    RETURNS bigint
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$declare 
+	contador integer;
+begin
+	select count(*) into contador from exame where realizado=false;
+	return contador;
+end;$BODY$;
+
+ALTER FUNCTION public."contaExamePorRealizar"()
+    OWNER TO postgres;
+
+
+
+
+
+CREATE FUNCTION public.dataexame()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF 
+AS $BODY$
+   Declare
+   diferenca int;
+   BEGIN
+		select Extract (day from (select  old.data - now())) into diferenca;
+		if(diferenca < 0) then
+			RAISE EXCEPTION 'Data invalida! A data deve ser superior a data actual'; 
+		end if;
+      RETURN NEW;
+   END;
+$BODY$;
+
+-- TRIGGERS
+-- Auditoria de preco de consultas
+CREATE TRIGGER trigger_preco_consulta Before INSERT or update ON tipoconsulta
+FOR EACH ROW EXECUTE PROCEDURE auditprecoconsulta();
+
+CREATE FUNCTION public.auditprecoconsulta()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF 
+AS $BODY$
+   BEGIN
+     	INSERT INTO auditoria_precos_consultas(
+	tipoconsultaid, valor_antigo, valor_actual, data_alteracao)
+	VALUES (old.tipoconsultaid, old.preco, new.preco, NOW());
+      RETURN NEW;
+   END;
+$BODY$;
+
+
+--Auditoria de Exames
