@@ -437,3 +437,21 @@ $BODY$;
 
 
 --Auditoria de Exames
+CREATE TRIGGER trigger_preco_exame Before INSERT or update ON tipoexame
+FOR EACH ROW EXECUTE PROCEDURE auditprecoexame();
+
+
+CREATE FUNCTION public.auditprecoexame()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF 
+AS $BODY$
+   BEGIN
+     	INSERT INTO auditoria_precos_exames(
+	tipoexameid, valor_antigo, valor_actual, data_alteracao)
+	VALUES (old.tipoexameid, old.preco, new.preco, NOW());
+      RETURN NEW;
+   END;
+$BODY$;
+
