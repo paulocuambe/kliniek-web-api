@@ -455,3 +455,43 @@ AS $BODY$
    END;
 $BODY$;
 
+-- Preencher preco da consulta
+CREATE FUNCTION public.preencherprecoconsulta()
+    RETURNS trigger
+    LANGUAGE 'plpgsql' 
+AS $BODY$
+   Declare
+   tipoc int;
+   pr numeric(10,2);
+   BEGIN
+		tipoc := new.tipoconsultaid;
+		select preco into pr from tipoconsulta where tipoconsultaid = tipoc;
+		update consulta set preco = pr where preco is null;
+    	RETURN NEW;
+   END;
+$BODY$;
+
+CREATE TRIGGER trigger_alterar_preco_consulta After INSERT ON consulta
+FOR EACH ROW EXECUTE PROCEDURE preencherprecoconsulta();
+
+-- Preencher preco da exame
+CREATE FUNCTION public.preencherprecoexame()
+    RETURNS trigger
+    LANGUAGE 'plpgsql' 
+AS $BODY$
+   Declare
+   tipoe int;
+   pr numeric(10,2);
+   BEGIN
+		tipoe := new.tipoexameid;
+		select preco into pr from tipoexame where tipoexameid = tipoe;
+		update exame set preco = pr where preco is null;
+    	RETURN NEW;
+   END;
+$BODY$;
+
+CREATE TRIGGER trigger_alterar_preco_exame After INSERT ON exame
+FOR EACH ROW EXECUTE PROCEDURE preencherprecoexame();
+
+
+
