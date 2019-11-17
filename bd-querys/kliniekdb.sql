@@ -298,6 +298,7 @@ END;
 $BODY$
 
 -- Listar consultas por realizar de um paciente
+
 CREATE OR REPLACE PROCEDURE public.listarconsultaporrealizarporpaciente(
 	integer)
 LANGUAGE 'plpgsql'
