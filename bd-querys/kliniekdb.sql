@@ -282,19 +282,53 @@ $$;
 
 --listar consultas por realizar
 CREATE OR REPLACE PROCEDURE listarConsultasPorRealizar()
-LANGUAGE plpgsql    
-AS $$
+LANGUAGE 'plpgsql'
+AS $BODY$
+declare
+	reg consulta%rowtype;
 BEGIN
-    select * from consulta where realizada = false;
+	for reg in select * from consulta where realizada=false Loop
+	raise notice 'Id Consulta: %', reg.consultaid;
+	raise notice 'Id Paciente: %', reg.pacienteid;
+	raise notice 'Data: %', reg.dia;
+	raise notice 'Hora: %', reg.hora;
+	raise notice '====================';
+	end loop;
 END;
-$$;
+$BODY$
+
+-- Listar consultas por realizar de um paciente
+CREATE OR REPLACE PROCEDURE public.listarconsultaporrealizarporpaciente(
+	integer)
+LANGUAGE 'plpgsql'
+AS $BODY$
+declare
+	reg consulta%rowtype;
+BEGIN
+	for reg in select * from consulta where realizada=false and pacienteid=$1 
+	Loop
+		raise notice 'Id Consulta: %', reg.consultaid;
+		raise notice 'Data: %', reg.dia;
+		raise notice 'Hora: %', reg.hora;
+		raise notice '====================';
+	end loop;
+END;
+$BODY$;
 
 --Listar as 10 ultimas  consultas realizadas por um determinado pacientes;
 CREATE OR REPLACE PROCEDURE listarDezUltimasConsultasRealizadas(int)
 LANGUAGE plpgsql    
 AS $$
+declare
+	reg consulta%rowtype;
 BEGIN
-    select * from consulta where pacienteid=$1 and realizada=true order by data limit 10;
+    for reg in select * from consulta where pacienteid=$1 and realizada=true order by data limit 10 
+    Loop
+		raise notice 'Id Consulta: %', reg.consultaid;
+		raise notice 'Data: %', reg.dia;
+		raise notice 'Hora: %', reg.hora;
+		raise notice '====================';
+	end loop;
 END;
 $$;
 
@@ -302,8 +336,16 @@ $$;
 CREATE OR REPLACE PROCEDURE listarDezUltimosExamesRealizados(int)
 LANGUAGE plpgsql    
 AS $$
+declare
+	reg exame%rowtype;
 BEGIN
-    select * from exame where pacienteid=$1 and realizado=true order by data  limit 10 ;
+    for reg in select * from exame where pacienteid=$1 and realizado=true order by data  limit 10 
+    Loop
+		raise notice 'Id Exame: %', reg.exameid;
+		raise notice 'Data: %', reg.data;
+		raise notice 'Hora: %', reg.hora;
+		raise notice '====================';
+	end loop;
 END;
 $$;
 
@@ -395,10 +437,7 @@ end;$BODY$;
 ALTER FUNCTION public."contaExamePorRealizar"()
     OWNER TO postgres;
 
-
-
-
-
+-- Trigger para verificar datas invalidades de exames
 CREATE FUNCTION public.dataexame()
     RETURNS trigger
     LANGUAGE 'plpgsql'
@@ -408,13 +447,38 @@ AS $BODY$
    Declare
    diferenca int;
    BEGIN
-		select Extract (day from (select  old.data - now())) into diferenca;
+		select Extract (day from (select  new.data - now())) into diferenca;
 		if(diferenca < 0) then
 			RAISE EXCEPTION 'Data invalida! A data deve ser superior a data actual'; 
 		end if;
       RETURN NEW;
    END;
 $BODY$;
+
+
+CREATE TRIGGER trigger_data_exame Before insert ON exame
+FOR EACH ROW EXECUTE PROCEDURE dataexame();
+
+-- Trigger para verificar datas invalidades de exames
+CREATE FUNCTION public.dataconsulta()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF 
+AS $BODY$
+   Declare
+   diferenca int;
+   BEGIN
+		select Extract (day from (select  new.dia - now())) into diferenca;
+		if(diferenca < 0) then
+			RAISE EXCEPTION 'Data invalida! A data deve ser superior a data actual'; 
+		end if;
+      RETURN NEW;
+   END;
+$BODY$;
+
+CREATE TRIGGER trigger_data_consulta Before insert ON consulta
+FOR EACH ROW EXECUTE PROCEDURE dataconsulta();
 
 -- TRIGGERS
 -- Auditoria de preco de consultas
@@ -517,6 +581,7 @@ $BODY$;
 CREATE TRIGGER trigger_impedir_genicologia_homens Before insert ON consulta
 FOR EACH ROW EXECUTE PROCEDURE impedir_genicologia_homens();
 
+-- Trigger para impedir marcao de consulta de pediatria para maiores de 12 anos
 CREATE FUNCTION public.impedir_pediatria()
 	RETURNS trigger
 	LANGUAGE 'plpgsql' 
