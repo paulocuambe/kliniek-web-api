@@ -517,3 +517,27 @@ $BODY$;
 CREATE TRIGGER trigger_impedir_genicologia_homens Before insert ON consulta
 FOR EACH ROW EXECUTE PROCEDURE impedir_genicologia_homens();
 
+CREATE FUNCTION public.impedir_pediatria()
+	RETURNS trigger
+	LANGUAGE 'plpgsql' 
+AS $BODY$ 
+   Declare
+   datanasc varchar(40);
+   idade int;
+   esp int;
+   BEGIN
+		select especialidadeid into esp from medico where medicoid = new.medicoid;
+		select datanascimento into datanasc from pessoa inner join paciente on pessoaid=pacienteid where pessoaid=new.pacienteid;
+		select trunc(extract (day from (select now() - to_date(datanasc, 'YYYY-MM-DD')))/365) into idade;
+		if esp = 1 then
+			if  idade > 12 then
+				Raise Exception 'Pediatria eh so para criancas menores de 12 anos.';
+			end if;
+		end if;
+		Return new;
+   END;
+$BODY$;
+
+
+CREATE TRIGGER trigger_impedir_pediatria Before insert ON consulta
+FOR EACH ROW EXECUTE PROCEDURE impedir_pediatria();
