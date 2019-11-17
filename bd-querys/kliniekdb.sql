@@ -494,4 +494,26 @@ CREATE TRIGGER trigger_alterar_preco_exame After INSERT ON exame
 FOR EACH ROW EXECUTE PROCEDURE preencherprecoexame();
 
 
+-- Impedir Marcacao de genicologia para homens
+CREATE FUNCTION public.impedir_genicologia_homens()
+    RETURNS trigger
+    LANGUAGE 'plpgsql' 
+AS $BODY$ 
+   Declare
+   esp int;
+   s varchar(40);
+   BEGIN
+		select especialidadeid into esp from medico where medicoid = new.medicoid;
+		select sexo into s from pessoa inner join paciente on pessoaid=pacienteid where pessoaid=new.pacienteid;
+		if s = 'masculino' or s = 'Masculino' then
+			if esp = 2 then
+				RAISE EXCEPTION 'Nao eh permitido realizar consultas de genicologias para homens';
+			end if;
+		end if;
+		Return new;
+   END;
+$BODY$;
+
+CREATE TRIGGER trigger_impedir_genicologia_homens Before insert ON consulta
+FOR EACH ROW EXECUTE PROCEDURE impedir_genicologia_homens();
 
