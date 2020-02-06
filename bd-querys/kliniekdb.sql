@@ -253,7 +253,6 @@ CREATE OR REPLACE PROCEDURE public.marcarconsulta1(
 	time without time zone,
 	character varying)
 LANGUAGE 'plpgsql'
-
 AS $BODY$
 BEGIN
  insert into consulta(tipoconsultaid,medicoid,pacienteid,recepcionistaid, dia, hora, descricao) values($1, $2,$3,$4,$5, $6, $7);
@@ -310,6 +309,24 @@ BEGIN
 	Loop
 		raise notice 'Id Consulta: %', reg.consultaid;
 		raise notice 'Data: %', reg.dia;
+		raise notice 'Hora: %', reg.hora;
+		raise notice '====================';
+	end loop;
+END;
+$BODY$;
+
+-- Listar Exames por realizar de um determinado paciente
+CREATE OR REPLACE PROCEDURE public.listarexameporrealizarporpaciente(
+	integer)
+LANGUAGE 'plpgsql'
+AS $BODY$
+declare
+	reg exame%rowtype;
+BEGIN
+	for reg in select * from exame where realizada=false and pacienteid=$1 
+	Loop
+		raise notice 'Id exame: %', reg.exameid;
+		raise notice 'Data: %', reg.data;
 		raise notice 'Hora: %', reg.hora;
 		raise notice '====================';
 	end loop;
@@ -456,7 +473,7 @@ AS $BODY$
    END;
 $BODY$;
 
-
+--trigger para validar a data da marcacao de um exame, ou seja, não permite marcar exame para uma data passada
 CREATE TRIGGER trigger_data_exame Before insert ON exame
 FOR EACH ROW EXECUTE PROCEDURE dataexame();
 
@@ -478,6 +495,7 @@ AS $BODY$
    END;
 $BODY$;
 
+--trigger valida data da marcação de uma consulta
 CREATE TRIGGER trigger_data_consulta Before insert ON consulta
 FOR EACH ROW EXECUTE PROCEDURE dataconsulta();
 
@@ -536,6 +554,7 @@ AS $BODY$
    END;
 $BODY$;
 
+--trigger que permite 
 CREATE TRIGGER trigger_alterar_preco_consulta After INSERT ON consulta
 FOR EACH ROW EXECUTE PROCEDURE preencherprecoconsulta();
 
@@ -555,6 +574,7 @@ AS $BODY$
    END;
 $BODY$;
 
+--trigger que permite 
 CREATE TRIGGER trigger_alterar_preco_exame After INSERT ON exame
 FOR EACH ROW EXECUTE PROCEDURE preencherprecoexame();
 
@@ -579,6 +599,7 @@ AS $BODY$
    END;
 $BODY$;
 
+--trigger que impede que homens marquem uma consulta de genecologia
 CREATE TRIGGER trigger_impedir_genicologia_homens Before insert ON consulta
 FOR EACH ROW EXECUTE PROCEDURE impedir_genicologia_homens();
 
@@ -604,6 +625,103 @@ AS $BODY$
    END;
 $BODY$;
 
-
+-- Trigger para impedir marcao de consulta de pediatria para maiores de 12 anos
 CREATE TRIGGER trigger_impedir_pediatria Before insert ON consulta
-FOR EACH ROW EXECUTE PROCEDURE impedir_pediatria();
+FOR EACH ROW EXECUTE PROCEDURE impedir_medico_menoridade();
+
+-- função para verificar idade de um certo funcionário e retorna um trigger
+CREATE FUNCTION impedir_menoridade()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+AS $BODY$
+   Declare
+   diferenca int;
+   BEGIN
+		select trunc(extract (day from (select now() - to_date(datanasc, 'YYYY-MM-DD')))/365) into idade;
+		if(idade < 18) then
+			RAISE EXCEPTION 'Idade invalida! Não pode ser menor de idade(18)'; 
+		end if;
+      RETURN NEW;
+   END;
+$BODY$;
+
+-- Trigger para impedir inserção de medico menor de 18 anos
+CREATE TRIGGER trigger_impedir_medico_menoridade Before insert ON  medico
+FOR EACH ROW EXECUTE PROCEDURE impedir_menoridade();
+
+-- Trigger para impedir inserção de enfermeiro menor de 18 anos
+CREATE TRIGGER trigger_impedir_enfermeiro_menoridade Before insert ON  enfermeiro
+FOR EACH ROW EXECUTE PROCEDURE impedir_menoridade();
+
+-- Trigger para impedir inserção de recepcionista menor de 18 anos
+CREATE TRIGGER trigger_impedir_recepcionista_menoridade Before insert ON  recepcionista
+FOR EACH ROW EXECUTE PROCEDURE impedir__menoridade();
+
+--backup
+pg_dump -U postgres -W -F t kliniek_db > c:/backup/dump_kliniek.tar
+
+--Sequências
+--sequência para incremementar o id das consultas
+CREATE SEQUENCE consulta_consultaid_seq
+    INCREMENT 1
+    START 38
+    MINVALUE 1
+    MAXVALUE 2147483647
+    CACHE 1;
+
+--sequência para incrementar o id do diasemana
+CREATE SEQUENCE diasemana_diaid_seq
+    INCREMENT 1
+    START 7
+    MINVALUE 1
+    MAXVALUE 2147483647
+    CACHE 1;
+
+----sequência para incremementar o id da especialidade
+CREATE SEQUENCE especialidade_especialidadeid_seq
+    INCREMENT 1
+    START 6
+    MINVALUE 1
+    MAXVALUE 2147483647
+    CACHE 1;
+
+--sequência para incrementar o id do periodo
+CREATE SEQUENCE periodo_periodoid_seq
+    INCREMENT 1
+    START 3
+    MINVALUE 1
+    MAXVALUE 2147483647
+    CACHE 1;
+
+--sequência para incremementar o id da pessoa
+CREATE SEQUENCE pessoa_pessoaid_seq
+    INCREMENT 1
+    START 11
+    MINVALUE 1
+    MAXVALUE 2147483647
+    CACHE 1;
+
+--sequência para incrementar o id do utilizador
+CREATE SEQUENCE usuario_usuarioid_seq
+    INCREMENT 1
+    START 1
+    MINVALUE 1
+    MAXVALUE 2147483647
+    CACHE 1;
+
+--sequência para incrementar o id do tipo de exame
+CREATE SEQUENCE tipoexame_tipoexameid_seq
+    INCREMENT 1
+    START 3
+    MINVALUE 1
+    MAXVALUE 2147483647
+    CACHE 1;
+
+--sequência para incrementar o id do tipo de consulta
+CREATE SEQUENCE tipoconsulta_tipoconsultaid_seq
+    INCREMENT 1
+    START 3
+    MINVALUE 1
+    MAXVALUE 2147483647
+    CACHE 1;
+
